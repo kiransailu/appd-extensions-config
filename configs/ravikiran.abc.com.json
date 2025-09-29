@@ -1,0 +1,36 @@
+{
+  "process_monitor": {
+    "monitors": [
+      {
+        "assignment_group": "CAS",
+        "displayname": "Apache service Monitor",
+        "regex": "/usr/sbin/",
+        "health_rules": "enabled"
+      }
+    ]
+  },
+  "nfs_monitor": {
+    "NFS": [
+      {
+        "nfsMountsToMonitor": "\"/opt/appdynamics\"",
+        "displayname": "Var Log Monitoying ",
+        "assignment_group": "CAS",
+        "health_rules": "disabled"
+      }
+    ]
+  },
+  "service_monitor": {
+    "service": [
+      {
+        "assignment_group": "CAST",
+        "service": "sxops, app, appdagent"
+      }
+    ]
+  },
+  "monitored_files": [
+    {
+      "name": "/uo15/agent/agent.log",
+      "last_modified_check": 15
+    }
+  ]
+}
