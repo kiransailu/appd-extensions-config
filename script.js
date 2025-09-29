@@ -532,8 +532,6 @@ class AppDConfigGenerator {
     }
 }
 
-}
-
 // Global functions for dynamic monitor management
 let processMonitorCount = 0;
 let nfsMonitorCount = 0;
