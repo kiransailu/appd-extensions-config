@@ -2,10 +2,8 @@
   "server_hostname": "test1.abc.com",
   "config_types": [
     "process_monitor",
-    "nfs_monitor",
-    "service_monitor",
-    "monitored_files"
+    "nfs_monitor"
   ],
-  "created_at": "2025-09-29T03:37:51.061Z",
+  "created_at": "2025-09-29T03:38:10.069Z",
   "created_by": "kiransailu"
 }
