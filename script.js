@@ -616,7 +616,7 @@ window.addNFSMonitor = function() {
     container.insertAdjacentHTML('beforeend', monitorHTML);
 }
 
-function addServiceMonitor() {
+window.addServiceMonitor = function() {
     const container = document.getElementById('service-monitors-container');
     const index = ++serviceMonitorCount;
     
