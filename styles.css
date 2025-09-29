@@ -151,6 +151,25 @@ textarea {
     color: #2d3748;
 }
 
+.btn-example {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.8rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.btn-example:hover {
+    background: #5a67d8;
+}
+
 /* Checkbox Styles */
 .checkbox-group {
     display: flex;
