@@ -39,96 +39,63 @@ class AppDConfigGenerator {
     }
 
     initiateGitHubLogin() {
-        this.showTokenModal();
-    }
-
-    showTokenModal() {
-        const modal = document.createElement('div');
-        modal.className = 'token-modal';
-        modal.innerHTML = `
-            <div class="token-modal-content">
-                <div class="token-modal-header">
-                    <h3><i class="fab fa-github"></i> GitHub Authentication</h3>
-                    <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
-                </div>
-                <div class="token-modal-body">
-                    <p><strong>To use this application, you need a GitHub Personal Access Token.</strong></p>
-                    
-                    <div class="steps">
-                        <h4>How to get your token:</h4>
-                        <ol>
-                            <li>Go to <a href="https://github.com/settings/tokens/new?scopes=repo&description=AppD Extensions Config Generator" target="_blank">GitHub Token Settings</a></li>
-                            <li>Set <strong>Expiration</strong> to your preference (30 days recommended)</li>
-                            <li>Ensure <strong>"repo"</strong> scope is selected</li>
-                            <li>Click <strong>"Generate token"</strong></li>
-                            <li>Copy the token and paste it below</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="token-input-group">
-                        <label for="github-token">GitHub Personal Access Token:</label>
-                        <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
-                        <small>Your token is stored locally and never sent to any server except GitHub.</small>
-                    </div>
-                    
-                    <div class="token-modal-actions">
-                        <button class="btn btn-primary" onclick="document.querySelector('.config-app').configInstance.authenticateWithToken()">
-                            <i class="fas fa-sign-in-alt"></i> Login with Token
-                        </button>
-                        <button class="btn btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove()">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        `;
+        const clientId = 'Iv23liHKfc6W60b0rtky'; // Replace with your GitHub App Client ID
+        const redirectUri = `${window.location.origin}/appd-extensions-config`;
+        const scope = 'repo';
         
-        document.body.appendChild(modal);
-        document.getElementById('github-token').focus();
-        
-        // Handle Enter key
-        document.getElementById('github-token').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.authenticateWithToken();
-            }
-        });
-    }
-
-    async authenticateWithToken() {
-        const tokenInput = document.getElementById('github-token');
-        const token = tokenInput.value.trim();
-        
-        if (!token) {
-            alert('Please enter your GitHub Personal Access Token');
-            return;
-        }
-        
-        if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
-            alert('Invalid token format. GitHub tokens should start with "ghp_" or "github_pat_"');
-            return;
-        }
-        
-        try {
-            // Test the token by fetching user data
-            await this.fetchUserData(token);
-            
-            // Close modal and update UI
-            document.querySelector('.token-modal').remove();
-            this.updateUI();
-            
-        } catch (error) {
-            alert('Invalid token or insufficient permissions. Please check your token and try again.');
-            console.error('Token validation error:', error);
-        }
+        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+        window.location.href = authUrl;
     }
 
     async handleOAuthCallback() {
-        // No longer needed - we're using Personal Access Tokens
-        // Clear any OAuth parameters from URL if present
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('code')) {
-            window.history.replaceState({}, document.title, window.location.pathname);
+        const code = urlParams.get('code');
+        
+        if (code) {
+            try {
+                // Clear URL parameters
+                window.history.replaceState({}, document.title, window.location.pathname);
+                
+                // Exchange code for token (this would typically go through your backend)
+                const token = await this.exchangeCodeForToken(code);
+                
+                if (token) {
+                    localStorage.setItem('github_token', token);
+                    await this.fetchUserData(token);
+                    this.updateUI();
+                }
+            } catch (error) {
+                console.error('OAuth callback error:', error);
+                this.showError('Authentication failed. Please try again.');
+            }
         }
+    }    
+    async exchangeCodeForToken(code) {
+        // In a production environment, this should go through your backend
+        // For demonstration, we'll simulate token exchange
+        // You need to implement a backend endpoint to handle this securely
+        
+        try {
+            // This is a placeholder - implement your backend token exchange
+            const response = await fetch('/api/auth/github', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                return data.access_token;
+            }
+        } catch (error) {
+            console.error('Token exchange error:', error);
+        }
+        
+        // For demo purposes - in production, remove this and implement proper backend
+        return prompt('Please enter your GitHub Personal Access Token:');
     }
-
+    
+ 
     async fetchUserData(token) {
         try {
             const response = await fetch('https://api.github.com/user', {
