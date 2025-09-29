@@ -531,6 +531,147 @@ class AppDConfigGenerator {
     }
 }
 
+}
+
+// Global functions for dynamic monitor management
+let processMonitorCount = 0;
+let nfsMonitorCount = 0;
+let serviceMonitorCount = 0;
+let fileMonitorCount = 0;
+
+function addProcessMonitor() {
+    const container = document.getElementById('process-monitors-container');
+    const index = ++processMonitorCount;
+    
+    const monitorHTML = `
+        <div class="monitor-item" id="process-monitor-${index}">
+            <div class="monitor-header">
+                <h4 class="monitor-title">Process Monitor #${index}</h4>
+                <button type="button" class="btn-remove" onclick="removeMonitor('process-monitor-${index}')">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div class="monitor-fields">
+                <div class="field-group">
+                    <label>Assignment Group</label>
+                    <input type="text" name="process_${index}_assignment_group" placeholder="e.g., CAS, CAST" required>
+                </div>
+                <div class="field-group">
+                    <label>Display Name</label>
+                    <input type="text" name="process_${index}_displayname" placeholder="e.g., Apache Service Monitor" required>
+                </div>
+                <div class="field-group field-full-width">
+                    <label>Process Regex</label>
+                    <input type="text" name="process_${index}_regex" placeholder="e.g., /usr/sbin/httpd -f /usr/local/apache/..." required>
+                </div>
+                <div class="field-group">
+                    <label>Health Rules</label>
+                    <select name="process_${index}_health_rules">
+                        <option value="enabled">Enabled</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', monitorHTML);
+}
+
+function addNFSMonitor() {
+    const container = document.getElementById('nfs-monitors-container');
+    const index = ++nfsMonitorCount;
+    
+    const monitorHTML = `
+        <div class="monitor-item" id="nfs-monitor-${index}">
+            <div class="monitor-header">
+                <h4 class="monitor-title">NFS Monitor #${index}</h4>
+                <button type="button" class="btn-remove" onclick="removeMonitor('nfs-monitor-${index}')">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div class="monitor-fields">
+                <div class="field-group">
+                    <label>NFS Mount Path</label>
+                    <input type="text" name="nfs_${index}_nfs_mount" placeholder="e.g., /cebitq/cebitiop" required>
+                </div>
+                <div class="field-group">
+                    <label>Display Name</label>
+                    <input type="text" name="nfs_${index}_displayname" placeholder="e.g., var Log Monitoring" required>
+                </div>
+                <div class="field-group">
+                    <label>Health Rules</label>
+                    <select name="nfs_${index}_health_rules">
+                        <option value="disabled">Disabled</option>
+                        <option value="enabled">Enabled</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', monitorHTML);
+}
+
+function addServiceMonitor() {
+    const container = document.getElementById('service-monitors-container');
+    const index = ++serviceMonitorCount;
+    
+    const monitorHTML = `
+        <div class="monitor-item" id="service-monitor-${index}">
+            <div class="monitor-header">
+                <h4 class="monitor-title">Service Monitor #${index}</h4>
+                <button type="button" class="btn-remove" onclick="removeMonitor('service-monitor-${index}')">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div class="monitor-fields full-width">
+                <div class="field-group">
+                    <label>Service Names (comma-separated)</label>
+                    <input type="text" name="service_${index}_service" placeholder="e.g., XblGameSave, Ifsvc, Dhcp" required>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', monitorHTML);
+}
+
+function addFileMonitor() {
+    const container = document.getElementById('file-monitors-container');
+    const index = ++fileMonitorCount;
+    
+    const monitorHTML = `
+        <div class="monitor-item" id="file-monitor-${index}">
+            <div class="monitor-header">
+                <h4 class="monitor-title">File Monitor #${index}</h4>
+                <button type="button" class="btn-remove" onclick="removeMonitor('file-monitor-${index}')">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div class="monitor-fields">
+                <div class="field-group">
+                    <label>File Path</label>
+                    <input type="text" name="file_${index}_file_name" placeholder="e.g., /u01/FileGPS/ST_Inbound/logs/ST_INBOUND_CLIENT.log" required>
+                </div>
+                <div class="field-group">
+                    <label>Last Modified Check (minutes)</label>
+                    <input type="number" name="file_${index}_last_modified" value="15" min="1" required>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', monitorHTML);
+}
+
+function removeMonitor(monitorId) {
+    const monitor = document.getElementById(monitorId);
+    if (monitor) {
+        monitor.remove();
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     new AppDConfigGenerator();
