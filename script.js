@@ -675,7 +675,7 @@ window.addFileMonitor = function() {
     container.insertAdjacentHTML('beforeend', monitorHTML);
 }
 
-function removeMonitor(monitorId) {
+window.removeMonitor = function(monitorId) {
     const monitor = document.getElementById(monitorId);
     if (monitor) {
         monitor.remove();
