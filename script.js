@@ -359,9 +359,12 @@ class AppDConfigGenerator {
         const items = container.querySelectorAll('.monitor-item');
         
         items.forEach(item => {
-            const service = item.querySelector('[name$="service"]').value;
-            if (service) {
-                monitors.push({ service: service });
+            const monitor = {
+                assignment_group: item.querySelector('[name$="assignment_group"]').value,
+                service: item.querySelector('[name$="service"]').value
+            };
+            if (monitor.assignment_group && monitor.service) {
+                monitors.push(monitor);
             }
         });
         
