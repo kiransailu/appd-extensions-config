@@ -196,15 +196,55 @@ class AppDConfigGenerator {
         const sections = {
             'process_monitor': document.getElementById('process-section'),
             'nfs_monitor': document.getElementById('nfs-section'),
+            'service_monitor': document.getElementById('service-section'),
             'monitored_files': document.getElementById('files-section')
         };
 
         checkboxes.forEach(checkbox => {
             const section = sections[checkbox.value];
             if (section) {
-                section.style.display = checkbox.checked ? 'block' : 'none';
+                if (checkbox.checked) {
+                    section.style.display = 'block';
+                    // Add initial monitor if container is empty
+                    this.addInitialMonitor(checkbox.value);
+                } else {
+                    section.style.display = 'none';
+                    // Clear monitors when unchecked
+                    this.clearMonitors(checkbox.value);
+                }
             }
         });
+    }
+
+    addInitialMonitor(type) {
+        const containers = {
+            'process_monitor': 'process-monitors-container',
+            'nfs_monitor': 'nfs-monitors-container',
+            'service_monitor': 'service-monitors-container',
+            'monitored_files': 'file-monitors-container'
+        };
+        
+        const container = document.getElementById(containers[type]);
+        if (container && container.children.length === 0) {
+            if (type === 'process_monitor') addProcessMonitor();
+            else if (type === 'nfs_monitor') addNFSMonitor();
+            else if (type === 'service_monitor') addServiceMonitor();
+            else if (type === 'monitored_files') addFileMonitor();
+        }
+    }
+
+    clearMonitors(type) {
+        const containers = {
+            'process_monitor': 'process-monitors-container',
+            'nfs_monitor': 'nfs-monitors-container',
+            'service_monitor': 'service-monitors-container',
+            'monitored_files': 'file-monitors-container'
+        };
+        
+        const container = document.getElementById(containers[type]);
+        if (container) {
+            container.innerHTML = '';
+        }
     }
 
     async handleFormSubmit(event) {
