@@ -3,6 +3,10 @@ class AppDConfigGenerator {
         this.githubToken = null;
         this.userData = null;
         this.init();
+        
+        // Add reference to instance for modal methods
+        document.querySelector('.container').classList.add('config-app');
+        document.querySelector('.config-app').configInstance = this;
     }
 
     init() {
@@ -35,61 +39,94 @@ class AppDConfigGenerator {
     }
 
     initiateGitHubLogin() {
-        const clientId = 'Iv23liHKfc6W60b0rtky'; // Replace with your GitHub App Client ID
-        const redirectUri = `${window.location.origin}/appd-extensions-config`;
-        const scope = 'repo';
+        this.showTokenModal();
+    }
+
+    showTokenModal() {
+        const modal = document.createElement('div');
+        modal.className = 'token-modal';
+        modal.innerHTML = `
+            <div class="token-modal-content">
+                <div class="token-modal-header">
+                    <h3><i class="fab fa-github"></i> GitHub Authentication</h3>
+                    <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                <div class="token-modal-body">
+                    <p><strong>To use this application, you need a GitHub Personal Access Token.</strong></p>
+                    
+                    <div class="steps">
+                        <h4>How to get your token:</h4>
+                        <ol>
+                            <li>Go to <a href="https://github.com/settings/tokens/new?scopes=repo&description=AppD Extensions Config Generator" target="_blank">GitHub Token Settings</a></li>
+                            <li>Set <strong>Expiration</strong> to your preference (30 days recommended)</li>
+                            <li>Ensure <strong>"repo"</strong> scope is selected</li>
+                            <li>Click <strong>"Generate token"</strong></li>
+                            <li>Copy the token and paste it below</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="token-input-group">
+                        <label for="github-token">GitHub Personal Access Token:</label>
+                        <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+                        <small>Your token is stored locally and never sent to any server except GitHub.</small>
+                    </div>
+                    
+                    <div class="token-modal-actions">
+                        <button class="btn btn-primary" onclick="document.querySelector('.config-app').configInstance.authenticateWithToken()">
+                            <i class="fas fa-sign-in-alt"></i> Login with Token
+                        </button>
+                        <button class="btn btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
         
-        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
-        window.location.href = authUrl;
+        document.body.appendChild(modal);
+        document.getElementById('github-token').focus();
+        
+        // Handle Enter key
+        document.getElementById('github-token').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.authenticateWithToken();
+            }
+        });
+    }
+
+    async authenticateWithToken() {
+        const tokenInput = document.getElementById('github-token');
+        const token = tokenInput.value.trim();
+        
+        if (!token) {
+            alert('Please enter your GitHub Personal Access Token');
+            return;
+        }
+        
+        if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+            alert('Invalid token format. GitHub tokens should start with "ghp_" or "github_pat_"');
+            return;
+        }
+        
+        try {
+            // Test the token by fetching user data
+            await this.fetchUserData(token);
+            
+            // Close modal and update UI
+            document.querySelector('.token-modal').remove();
+            this.updateUI();
+            
+        } catch (error) {
+            alert('Invalid token or insufficient permissions. Please check your token and try again.');
+            console.error('Token validation error:', error);
+        }
     }
 
     async handleOAuthCallback() {
+        // No longer needed - we're using Personal Access Tokens
+        // Clear any OAuth parameters from URL if present
         const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        
-        if (code) {
-            try {
-                // Clear URL parameters
-                window.history.replaceState({}, document.title, window.location.pathname);
-                
-                // Exchange code for token (this would typically go through your backend)
-                const token = await this.exchangeCodeForToken(code);
-                
-                if (token) {
-                    localStorage.setItem('github_token', token);
-                    await this.fetchUserData(token);
-                    this.updateUI();
-                }
-            } catch (error) {
-                console.error('OAuth callback error:', error);
-                this.showError('Authentication failed. Please try again.');
-            }
+        if (urlParams.get('code')) {
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
-    }
-
-    async exchangeCodeForToken(code) {
-        // In a production environment, this should go through your backend
-        // For demonstration, we'll simulate token exchange
-        // You need to implement a backend endpoint to handle this securely
-        
-        try {
-            // This is a placeholder - implement your backend token exchange
-            const response = await fetch('/api/auth/github', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code })
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                return data.access_token;
-            }
-        } catch (error) {
-            console.error('Token exchange error:', error);
-        }
-        
-        // For demo purposes - in production, remove this and implement proper backend
-        return prompt('Please enter your GitHub Personal Access Token:');
     }
 
     async fetchUserData(token) {
@@ -159,22 +196,69 @@ class AppDConfigGenerator {
         const sections = {
             'process_monitor': document.getElementById('process-section'),
             'nfs_monitor': document.getElementById('nfs-section'),
+            'service_monitor': document.getElementById('service-section'),
             'monitored_files': document.getElementById('files-section')
         };
 
         checkboxes.forEach(checkbox => {
             const section = sections[checkbox.value];
             if (section) {
-                section.style.display = checkbox.checked ? 'block' : 'none';
+                if (checkbox.checked) {
+                    section.style.display = 'block';
+                    // Add initial monitor if container is empty
+                    this.addInitialMonitor(checkbox.value);
+                } else {
+                    section.style.display = 'none';
+                    // Clear monitors when unchecked
+                    this.clearMonitors(checkbox.value);
+                }
             }
         });
+    }
+
+    addInitialMonitor(type) {
+        const containers = {
+            'process_monitor': 'process-monitors-container',
+            'nfs_monitor': 'nfs-monitors-container',
+            'service_monitor': 'service-monitors-container',
+            'monitored_files': 'file-monitors-container'
+        };
+        
+        const container = document.getElementById(containers[type]);
+        if (container && container.children.length === 0) {
+            if (type === 'process_monitor') addProcessMonitor();
+            else if (type === 'nfs_monitor') addNFSMonitor();
+            else if (type === 'service_monitor') addServiceMonitor();
+            else if (type === 'monitored_files') addFileMonitor();
+        }
+    }
+
+    clearMonitors(type) {
+        const containers = {
+            'process_monitor': 'process-monitors-container',
+            'nfs_monitor': 'nfs-monitors-container',
+            'service_monitor': 'service-monitors-container',
+            'monitored_files': 'file-monitors-container'
+        };
+        
+        const container = document.getElementById(containers[type]);
+        if (container) {
+            container.innerHTML = '';
+        }
     }
 
     async handleFormSubmit(event) {
         event.preventDefault();
         
+        console.log('Form submission started...');
+        
         if (!this.githubToken) {
             this.showError('Please login with GitHub first.');
+            return;
+        }
+
+        if (!this.userData) {
+            this.showError('User data not loaded. Please refresh and try again.');
             return;
         }
 
@@ -182,16 +266,23 @@ class AppDConfigGenerator {
         this.hideMessages();
 
         try {
+            console.log('Collecting form data...');
             const formData = this.collectFormData();
-            const jsonConfig = this.generateJSONConfig(formData);
+            console.log('Form data collected:', formData);
             
+            console.log('Generating JSON config...');
+            const jsonConfig = this.generateJSONConfig(formData);
+            console.log('JSON config generated:', jsonConfig);
+            
+            console.log('Creating config file...');
             await this.createConfigFile(formData.server_hostname, jsonConfig);
-            this.showSuccess('Configuration created successfully!');
+            
+            this.showSuccess(`Configuration created successfully! File: configs/${formData.server_hostname}.json`);
             this.resetForm();
             
         } catch (error) {
             console.error('Form submission error:', error);
-            this.showError(error.message || 'Failed to create configuration. Please try again.');
+            this.showError(`Error: ${error.message}`);
         } finally {
             this.showLoading(false);
         }
@@ -204,9 +295,10 @@ class AppDConfigGenerator {
         const data = {
             server_hostname: formData.get('server_hostname'),
             config_types: formData.getAll('config_types'),
-            process_monitors: formData.get('process_monitors') || '',
-            nfs_config: formData.get('nfs_config') || '',
-            file_monitoring: formData.get('file_monitoring') || ''
+            process_monitors: this.collectProcessMonitors(),
+            nfs_monitors: this.collectNFSMonitors(),
+            service_monitors: this.collectServiceMonitors(),
+            file_monitors: this.collectFileMonitors()
         };
 
         // Validation
@@ -221,37 +313,102 @@ class AppDConfigGenerator {
         return data;
     }
 
+    collectProcessMonitors() {
+        const monitors = [];
+        const container = document.getElementById('process-monitors-container');
+        const items = container.querySelectorAll('.monitor-item');
+        
+        items.forEach(item => {
+            const monitor = {
+                assignment_group: item.querySelector('[name$="assignment_group"]').value,
+                displayname: item.querySelector('[name$="displayname"]').value,
+                regex: item.querySelector('[name$="regex"]').value,
+                health_rules: item.querySelector('[name$="health_rules"]').value
+            };
+            if (monitor.assignment_group && monitor.displayname && monitor.regex) {
+                monitors.push(monitor);
+            }
+        });
+        
+        return monitors;
+    }
+
+    collectNFSMonitors() {
+        const monitors = [];
+        const container = document.getElementById('nfs-monitors-container');
+        const items = container.querySelectorAll('.monitor-item');
+        
+        items.forEach(item => {
+            const monitor = {
+                nfsMountsToMonitor: `"${item.querySelector('[name$="nfs_mount"]').value}"`,
+                displayname: item.querySelector('[name$="displayname"]').value,
+                health_rules: item.querySelector('[name$="health_rules"]').value
+            };
+            if (monitor.nfsMountsToMonitor && monitor.displayname) {
+                monitors.push(monitor);
+            }
+        });
+        
+        return monitors;
+    }
+
+    collectServiceMonitors() {
+        const monitors = [];
+        const container = document.getElementById('service-monitors-container');
+        const items = container.querySelectorAll('.monitor-item');
+        
+        items.forEach(item => {
+            const service = item.querySelector('[name$="service"]').value;
+            if (service) {
+                monitors.push({ service: service });
+            }
+        });
+        
+        return monitors;
+    }
+
+    collectFileMonitors() {
+        const monitors = [];
+        const container = document.getElementById('file-monitors-container');
+        const items = container.querySelectorAll('.monitor-item');
+        
+        items.forEach(item => {
+            const monitor = {
+                name: item.querySelector('[name$="file_name"]').value,
+                last_modified_check: parseInt(item.querySelector('[name$="last_modified"]').value) || 30
+            };
+            if (monitor.name) {
+                monitors.push(monitor);
+            }
+        });
+        
+        return monitors;
+    }
+
     generateJSONConfig(formData) {
-        const config = {
-            server_hostname: formData.server_hostname,
-            config_types: formData.config_types,
-            created_at: new Date().toISOString(),
-            created_by: this.userData.login
-        };
+        const config = {};
 
         // Add configuration details based on selected types
-        if (formData.config_types.includes('process_monitor') && formData.process_monitors) {
-            try {
-                config.process_monitors = JSON.parse(formData.process_monitors);
-            } catch (error) {
-                throw new Error('Invalid JSON format in Process Monitors Configuration.');
-            }
+        if (formData.config_types.includes('process_monitor') && formData.process_monitors.length > 0) {
+            config.process_monitor = {
+                monitors: formData.process_monitors
+            };
         }
 
-        if (formData.config_types.includes('nfs_monitor') && formData.nfs_config) {
-            try {
-                config.nfs_config = JSON.parse(formData.nfs_config);
-            } catch (error) {
-                throw new Error('Invalid JSON format in NFS Monitoring Configuration.');
-            }
+        if (formData.config_types.includes('nfs_monitor') && formData.nfs_monitors.length > 0) {
+            config.nfs_monitor = {
+                NFS: formData.nfs_monitors
+            };
         }
 
-        if (formData.config_types.includes('monitored_files') && formData.file_monitoring) {
-            try {
-                config.file_monitoring = JSON.parse(formData.file_monitoring);
-            } catch (error) {
-                throw new Error('Invalid JSON format in File Monitoring Configuration.');
-            }
+        if (formData.config_types.includes('service_monitor') && formData.service_monitors.length > 0) {
+            config.service_monitor = {
+                service: formData.service_monitors
+            };
+        }
+
+        if (formData.config_types.includes('monitored_files') && formData.file_monitors.length > 0) {
+            config.monitored_files = formData.file_monitors;
         }
 
         return config;
@@ -280,25 +437,54 @@ class AppDConfigGenerator {
             }
 
             // Create or update file
+            console.log(`Creating file at: https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
+            
+            const requestBody = {
+                message: `${sha ? 'Update' : 'Add'} configuration for ${hostname}`,
+                content: content,
+                ...(sha && { sha: sha })
+            };
+            
+            console.log('Request body:', requestBody);
+            
             const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${this.githubToken}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    message: `${sha ? 'Update' : 'Add'} configuration for ${hostname}`,
-                    content: content,
-                    sha: sha
-                })
+                body: JSON.stringify(requestBody)
             });
 
+            console.log('GitHub API response status:', response.status);
+            
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || 'Failed to create configuration file.');
+                const errorText = await response.text();
+                console.error('GitHub API error response:', errorText);
+                
+                let errorMessage = 'Failed to create configuration file.';
+                
+                if (response.status === 404) {
+                    errorMessage = 'Repository not found or access denied. Check your token permissions.';
+                } else if (response.status === 403) {
+                    errorMessage = 'Permission denied. Your token might not have "repo" scope.';
+                } else if (response.status === 401) {
+                    errorMessage = 'Invalid token. Please check your GitHub token.';
+                }
+                
+                try {
+                    const error = JSON.parse(errorText);
+                    errorMessage = error.message || errorMessage;
+                } catch (e) {
+                    // Use default error message
+                }
+                
+                throw new Error(errorMessage);
             }
 
-            return await response.json();
+            const result = await response.json();
+            console.log('File created successfully:', result);
+            return result;
         } catch (error) {
             console.error('GitHub API error:', error);
             throw error;
@@ -307,6 +493,11 @@ class AppDConfigGenerator {
 
     resetForm() {
         document.getElementById('config-form').reset();
+        // Clear all dynamic monitors
+        document.getElementById('process-monitors-container').innerHTML = '';
+        document.getElementById('nfs-monitors-container').innerHTML = '';
+        document.getElementById('service-monitors-container').innerHTML = '';
+        document.getElementById('file-monitors-container').innerHTML = '';
         this.handleConfigTypeToggle();
     }
 
@@ -337,6 +528,147 @@ class AppDConfigGenerator {
     hideMessages() {
         document.getElementById('success-message').style.display = 'none';
         document.getElementById('error-message').style.display = 'none';
+    }
+}
+
+}
+
+// Global functions for dynamic monitor management
+let processMonitorCount = 0;
+let nfsMonitorCount = 0;
+let serviceMonitorCount = 0;
+let fileMonitorCount = 0;
+
+function addProcessMonitor() {
+    const container = document.getElementById('process-monitors-container');
+    const index = ++processMonitorCount;
+    
+    const monitorHTML = `
+        <div class="monitor-item" id="process-monitor-${index}">
+            <div class="monitor-header">
+                <h4 class="monitor-title">Process Monitor #${index}</h4>
+                <button type="button" class="btn-remove" onclick="removeMonitor('process-monitor-${index}')">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div class="monitor-fields">
+                <div class="field-group">
+                    <label>Assignment Group</label>
+                    <input type="text" name="process_${index}_assignment_group" placeholder="e.g., CAS, CAST" required>
+                </div>
+                <div class="field-group">
+                    <label>Display Name</label>
+                    <input type="text" name="process_${index}_displayname" placeholder="e.g., Apache Service Monitor" required>
+                </div>
+                <div class="field-group field-full-width">
+                    <label>Process Regex</label>
+                    <input type="text" name="process_${index}_regex" placeholder="e.g., /usr/sbin/httpd -f /usr/local/apache/..." required>
+                </div>
+                <div class="field-group">
+                    <label>Health Rules</label>
+                    <select name="process_${index}_health_rules">
+                        <option value="enabled">Enabled</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', monitorHTML);
+}
+
+function addNFSMonitor() {
+    const container = document.getElementById('nfs-monitors-container');
+    const index = ++nfsMonitorCount;
+    
+    const monitorHTML = `
+        <div class="monitor-item" id="nfs-monitor-${index}">
+            <div class="monitor-header">
+                <h4 class="monitor-title">NFS Monitor #${index}</h4>
+                <button type="button" class="btn-remove" onclick="removeMonitor('nfs-monitor-${index}')">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div class="monitor-fields">
+                <div class="field-group">
+                    <label>NFS Mount Path</label>
+                    <input type="text" name="nfs_${index}_nfs_mount" placeholder="e.g., /cebitq/cebitiop" required>
+                </div>
+                <div class="field-group">
+                    <label>Display Name</label>
+                    <input type="text" name="nfs_${index}_displayname" placeholder="e.g., var Log Monitoring" required>
+                </div>
+                <div class="field-group">
+                    <label>Health Rules</label>
+                    <select name="nfs_${index}_health_rules">
+                        <option value="disabled">Disabled</option>
+                        <option value="enabled">Enabled</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', monitorHTML);
+}
+
+function addServiceMonitor() {
+    const container = document.getElementById('service-monitors-container');
+    const index = ++serviceMonitorCount;
+    
+    const monitorHTML = `
+        <div class="monitor-item" id="service-monitor-${index}">
+            <div class="monitor-header">
+                <h4 class="monitor-title">Service Monitor #${index}</h4>
+                <button type="button" class="btn-remove" onclick="removeMonitor('service-monitor-${index}')">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div class="monitor-fields full-width">
+                <div class="field-group">
+                    <label>Service Names (comma-separated)</label>
+                    <input type="text" name="service_${index}_service" placeholder="e.g., XblGameSave, Ifsvc, Dhcp" required>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', monitorHTML);
+}
+
+function addFileMonitor() {
+    const container = document.getElementById('file-monitors-container');
+    const index = ++fileMonitorCount;
+    
+    const monitorHTML = `
+        <div class="monitor-item" id="file-monitor-${index}">
+            <div class="monitor-header">
+                <h4 class="monitor-title">File Monitor #${index}</h4>
+                <button type="button" class="btn-remove" onclick="removeMonitor('file-monitor-${index}')">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div class="monitor-fields">
+                <div class="field-group">
+                    <label>File Path</label>
+                    <input type="text" name="file_${index}_file_name" placeholder="e.g., /u01/FileGPS/ST_Inbound/logs/ST_INBOUND_CLIENT.log" required>
+                </div>
+                <div class="field-group">
+                    <label>Last Modified Check (minutes)</label>
+                    <input type="number" name="file_${index}_last_modified" value="15" min="1" required>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', monitorHTML);
+}
+
+function removeMonitor(monitorId) {
+    const monitor = document.getElementById(monitorId);
+    if (monitor) {
+        monitor.remove();
     }
 }
 
