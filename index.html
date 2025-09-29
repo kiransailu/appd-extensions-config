@@ -100,11 +100,17 @@
                             id="process_monitors" 
                             name="process_monitors" 
                             rows="8"
-                            placeholder="Enter JSON configuration..."
+                            placeholder='[
+  {
+    "assignment_group": "PROD",
+    "displayname": "My Custom Process",
+    "regex": "java.*app"
+  }
+]'
                         ></textarea>
                         <small class="form-help">
-                            Provide JSON array of process monitors. Example:<br>
-                            <code>[{"assignment_group": "PROD", "displayname": "My Custom Process", "regex": "java.*app"}]</code>
+                            Provide JSON array of process monitors. Copy and modify this example:<br>
+                            <button type="button" class="btn-example" onclick="document.getElementById('process_monitors').value='[{&quot;assignment_group&quot;: &quot;PROD&quot;, &quot;displayname&quot;: &quot;My Custom Process&quot;, &quot;regex&quot;: &quot;java.*app&quot;}]'">Use Example</button>
                         </small>
                     </div>
                 </div>
