@@ -82,4 +82,7 @@ public
 
 # Temporary folders
 tmp/
-temp/
+temp/-e 
+# Environment files
+*.env
+*.env.*
