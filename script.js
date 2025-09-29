@@ -226,10 +226,10 @@ class AppDConfigGenerator {
         
         const container = document.getElementById(containers[type]);
         if (container && container.children.length === 0) {
-            if (type === 'process_monitor') addProcessMonitor();
-            else if (type === 'nfs_monitor') addNFSMonitor();
-            else if (type === 'service_monitor') addServiceMonitor();
-            else if (type === 'monitored_files') addFileMonitor();
+            if (type === 'process_monitor') window.addProcessMonitor();
+            else if (type === 'nfs_monitor') window.addNFSMonitor();
+            else if (type === 'service_monitor') window.addServiceMonitor();
+            else if (type === 'monitored_files') window.addFileMonitor();
         }
     }
 
