@@ -149,11 +149,16 @@
                             id="file_monitoring" 
                             name="file_monitoring" 
                             rows="6"
-                            placeholder="Enter JSON configuration..."
+                            placeholder='[
+  {
+    "name": "/opt/app/logs/app.log",
+    "last_modified_check": 30
+  }
+]'
                         ></textarea>
                         <small class="form-help">
-                            Provide JSON array of files to monitor. Example:<br>
-                            <code>[{"name": "/opt/app/logs/app.log", "last_modified_check": 30}]</code>
+                            Provide JSON array of files to monitor. Copy and modify this example:<br>
+                            <button type="button" class="btn-example" onclick="document.getElementById('file_monitoring').value='[{&quot;name&quot;: &quot;/opt/app/logs/app.log&quot;, &quot;last_modified_check&quot;: 30}]'">Use Example</button>
                         </small>
                     </div>
                 </div>
