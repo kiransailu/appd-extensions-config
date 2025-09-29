@@ -3,6 +3,10 @@ class AppDConfigGenerator {
         this.githubToken = null;
         this.userData = null;
         this.init();
+        
+        // Add reference to instance for modal methods
+        document.querySelector('.container').classList.add('config-app');
+        document.querySelector('.config-app').configInstance = this;
     }
 
     init() {
