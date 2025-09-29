@@ -439,6 +439,11 @@ class AppDConfigGenerator {
 
     resetForm() {
         document.getElementById('config-form').reset();
+        // Clear all dynamic monitors
+        document.getElementById('process-monitors-container').innerHTML = '';
+        document.getElementById('nfs-monitors-container').innerHTML = '';
+        document.getElementById('service-monitors-container').innerHTML = '';
+        document.getElementById('file-monitors-container').innerHTML = '';
         this.handleConfigTypeToggle();
     }
 
