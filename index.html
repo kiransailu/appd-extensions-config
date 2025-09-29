@@ -119,11 +119,16 @@
                             id="nfs_config" 
                             name="nfs_config" 
                             rows="6"
-                            placeholder="Enter JSON configuration..."
+                            placeholder='[
+  {
+    "mount_path": "/nfs/shared",
+    "check_availability": true
+  }
+]'
                         ></textarea>
                         <small class="form-help">
-                            Provide JSON array of NFS mounts to monitor. Example:<br>
-                            <code>[{"mount_path": "/nfs/shared", "check_availability": true}]</code>
+                            Provide JSON array of NFS mounts to monitor. Copy and modify this example:<br>
+                            <button type="button" class="btn-example" onclick="document.getElementById('nfs_config').value='[{&quot;mount_path&quot;: &quot;/nfs/shared&quot;, &quot;check_availability&quot;: true}]'">Use Example</button>
                         </small>
                     </div>
                 </div>
