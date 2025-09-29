@@ -647,7 +647,7 @@ window.addServiceMonitor = function() {
     container.insertAdjacentHTML('beforeend', monitorHTML);
 }
 
-function addFileMonitor() {
+window.addFileMonitor = function() {
     const container = document.getElementById('file-monitors-container');
     const index = ++fileMonitorCount;
     
