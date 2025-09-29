@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppDynamics Extensions Config Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <i class="fas fa-server"></i>
+                <h1>AppDynamics Extensions Config Generator</h1>
+                <p>Create server config with only needed monitoring components for AppDynamics extensions</p>
+            </div>
+            <div class="auth-section">
+                <div id="login-section" class="auth-box">
+                    <button id="github-login" class="btn btn-primary">
+                        <i class="fab fa-github"></i> Login with GitHub
+                    </button>
+                </div>
+                <div id="user-section" class="auth-box" style="display: none;">
+                    <div class="user-info">
+                        <img id="user-avatar" src="" alt="User Avatar" class="avatar">
+                        <span id="user-name"></span>
+                        <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div id="loading" class="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Processing your configuration...</p>
+            </div>
+
+            <div id="success-message" class="alert alert-success" style="display: none;">
+                <i class="fas fa-check-circle"></i>
+                <span>Configuration created successfully!</span>
+            </div>
+
+            <div id="error-message" class="alert alert-error" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="error-text">An error occurred. Please try again.</span>
+            </div>
+
+            <form id="config-form" class="config-form" style="display: none;">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="server_hostname" class="required">
+                            <i class="fas fa-server"></i>
+                            Server Hostname (FQDN)
+                        </label>
+                        <input 
+                            type="text" 
+                            id="server_hostname" 
+                            name="server_hostname" 
+                            placeholder="server01.domain.com"
+                            required
+                        >
+                        <small class="form-help">Full server hostname (e.g., pac4aapwdl11v.corp.caremark.com)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="config_types" class="required">
+                            <i class="fas fa-cogs"></i>
+                            Configuration Types Needed
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="config_types" value="process_monitor">
+                                <span class="checkmark"></span>
+                                Process Monitor
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="config_types" value="nfs_monitor">
+                                <span class="checkmark"></span>
+                                NFS Monitor
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="config_types" value="monitored_files">
+                                <span class="checkmark"></span>
+                                Monitored Files
+                            </label>
+                        </div>
+                        <small class="form-help">Select which monitoring components to include</small>
+                    </div>
+                </div>
+
+                <div class="form-section" id="process-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="process_monitors">
+                            <i class="fas fa-tasks"></i>
+                            Process Monitors Configuration
+                        </label>
+                        <textarea 
+                            id="process_monitors" 
+                            name="process_monitors" 
+                            rows="8"
+                            placeholder="Enter JSON configuration..."
+                        ></textarea>
+                        <small class="form-help">
+                            Provide JSON array of process monitors. Example:<br>
+                            <code>[{"assignment_group": "PROD", "displayname": "My Custom Process", "regex": "java.*app"}]</code>
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-section" id="nfs-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="nfs_config">
+                            <i class="fas fa-folder-open"></i>
+                            NFS Monitoring Configuration
+                        </label>
+                        <textarea 
+                            id="nfs_config" 
+                            name="nfs_config" 
+                            rows="6"
+                            placeholder="Enter JSON configuration..."
+                        ></textarea>
+                        <small class="form-help">
+                            Provide JSON array of NFS mounts to monitor. Example:<br>
+                            <code>[{"mount_path": "/nfs/shared", "check_availability": true}]</code>
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-section" id="files-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="file_monitoring">
+                            <i class="fas fa-file-alt"></i>
+                            File Monitoring Configuration
+                        </label>
+                        <textarea 
+                            id="file_monitoring" 
+                            name="file_monitoring" 
+                            rows="6"
+                            placeholder="Enter JSON configuration..."
+                        ></textarea>
+                        <small class="form-help">
+                            Provide JSON array of files to monitor. Example:<br>
+                            <code>[{"name": "/opt/app/logs/app.log", "last_modified_check": 30}]</code>
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <i class="fas fa-save"></i>
+                        Generate Configuration
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        Reset Form
+                    </button>
+                </div>
+            </form>
+
+            <div id="login-required" class="login-prompt">
+                <div class="prompt-content">
+                    <i class="fab fa-github fa-3x"></i>
+                    <h2>GitHub Authentication Required</h2>
+                    <p>Please login with your GitHub account to create server configurations.</p>
+                    <button id="github-login-2" class="btn btn-primary btn-large">
+                        <i class="fab fa-github"></i>
+                        Login with GitHub
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 AppDynamics Extensions Config Generator | 
+            <a href="https://github.com/your-username/appd-extensions-config" target="_blank">
+                <i class="fab fa-github"></i> View on GitHub
+            </a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

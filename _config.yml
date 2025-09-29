@@ -1,0 +1,32 @@
+title: AppDynamics Extensions Config Generator
+description: Create server config with only needed monitoring components for AppDynamics extensions
+baseurl: ""
+url: "https://your-username.github.io"
+
+# GitHub Pages settings
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - LICENSE
+  - .github/
+  - node_modules/
+  - package*.json
+
+# Include files that start with underscore
+include:
+  - _config.yml
+
+# Theme settings
+remote_theme: primer/minimal
+
+# SEO settings
+author: Your Name
+twitter_username: your_twitter
+github_username: your-username
+
+# Google Analytics (optional)
+# google_analytics: UA-NNNNNNNN-N
