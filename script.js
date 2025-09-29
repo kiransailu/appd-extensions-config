@@ -331,25 +331,54 @@ class AppDConfigGenerator {
             }
 
             // Create or update file
+            console.log(`Creating file at: https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
+            
+            const requestBody = {
+                message: `${sha ? 'Update' : 'Add'} configuration for ${hostname}`,
+                content: content,
+                ...(sha && { sha: sha })
+            };
+            
+            console.log('Request body:', requestBody);
+            
             const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${this.githubToken}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    message: `${sha ? 'Update' : 'Add'} configuration for ${hostname}`,
-                    content: content,
-                    sha: sha
-                })
+                body: JSON.stringify(requestBody)
             });
 
+            console.log('GitHub API response status:', response.status);
+            
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || 'Failed to create configuration file.');
+                const errorText = await response.text();
+                console.error('GitHub API error response:', errorText);
+                
+                let errorMessage = 'Failed to create configuration file.';
+                
+                if (response.status === 404) {
+                    errorMessage = 'Repository not found or access denied. Check your token permissions.';
+                } else if (response.status === 403) {
+                    errorMessage = 'Permission denied. Your token might not have "repo" scope.';
+                } else if (response.status === 401) {
+                    errorMessage = 'Invalid token. Please check your GitHub token.';
+                }
+                
+                try {
+                    const error = JSON.parse(errorText);
+                    errorMessage = error.message || errorMessage;
+                } catch (e) {
+                    // Use default error message
+                }
+                
+                throw new Error(errorMessage);
             }
 
-            return await response.json();
+            const result = await response.json();
+            console.log('File created successfully:', result);
+            return result;
         } catch (error) {
             console.error('GitHub API error:', error);
             throw error;
