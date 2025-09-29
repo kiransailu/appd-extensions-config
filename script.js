@@ -295,9 +295,10 @@ class AppDConfigGenerator {
         const data = {
             server_hostname: formData.get('server_hostname'),
             config_types: formData.getAll('config_types'),
-            process_monitors: formData.get('process_monitors') || '',
-            nfs_config: formData.get('nfs_config') || '',
-            file_monitoring: formData.get('file_monitoring') || ''
+            process_monitors: this.collectProcessMonitors(),
+            nfs_monitors: this.collectNFSMonitors(),
+            service_monitors: this.collectServiceMonitors(),
+            file_monitors: this.collectFileMonitors()
         };
 
         // Validation
@@ -310,6 +311,78 @@ class AppDConfigGenerator {
         }
 
         return data;
+    }
+
+    collectProcessMonitors() {
+        const monitors = [];
+        const container = document.getElementById('process-monitors-container');
+        const items = container.querySelectorAll('.monitor-item');
+        
+        items.forEach(item => {
+            const monitor = {
+                assignment_group: item.querySelector('[name$="assignment_group"]').value,
+                displayname: item.querySelector('[name$="displayname"]').value,
+                regex: item.querySelector('[name$="regex"]').value,
+                health_rules: item.querySelector('[name$="health_rules"]').value
+            };
+            if (monitor.assignment_group && monitor.displayname && monitor.regex) {
+                monitors.push(monitor);
+            }
+        });
+        
+        return monitors;
+    }
+
+    collectNFSMonitors() {
+        const monitors = [];
+        const container = document.getElementById('nfs-monitors-container');
+        const items = container.querySelectorAll('.monitor-item');
+        
+        items.forEach(item => {
+            const monitor = {
+                nfsMountsToMonitor: `"${item.querySelector('[name$="nfs_mount"]').value}"`,
+                displayname: item.querySelector('[name$="displayname"]').value,
+                health_rules: item.querySelector('[name$="health_rules"]').value
+            };
+            if (monitor.nfsMountsToMonitor && monitor.displayname) {
+                monitors.push(monitor);
+            }
+        });
+        
+        return monitors;
+    }
+
+    collectServiceMonitors() {
+        const monitors = [];
+        const container = document.getElementById('service-monitors-container');
+        const items = container.querySelectorAll('.monitor-item');
+        
+        items.forEach(item => {
+            const service = item.querySelector('[name$="service"]').value;
+            if (service) {
+                monitors.push({ service: service });
+            }
+        });
+        
+        return monitors;
+    }
+
+    collectFileMonitors() {
+        const monitors = [];
+        const container = document.getElementById('file-monitors-container');
+        const items = container.querySelectorAll('.monitor-item');
+        
+        items.forEach(item => {
+            const monitor = {
+                name: item.querySelector('[name$="file_name"]').value,
+                last_modified_check: parseInt(item.querySelector('[name$="last_modified"]').value) || 30
+            };
+            if (monitor.name) {
+                monitors.push(monitor);
+            }
+        });
+        
+        return monitors;
     }
 
     generateJSONConfig(formData) {
