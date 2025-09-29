@@ -1,0 +1,28 @@
+{
+  "process_monitor": {
+    "monitors": [
+      {
+        "assignment_group": "CAS",
+        "displayname": "APACHE MONITOR SERVICE",
+        "regex": "/use/sbin",
+        "health_rules": "enabled"
+      },
+      {
+        "assignment_group": "CAST",
+        "displayname": "Apache service",
+        "regex": "/opt/appdynamics",
+        "health_rules": "disabled"
+      }
+    ]
+  },
+  "nfs_monitor": {
+    "NFS": [
+      {
+        "nfsMountsToMonitor": "\"/opt/appdua\"",
+        "displayname": "appd",
+        "assignment_group": "CAST_C",
+        "health_rules": "disabled"
+      }
+    ]
+  }
+}
