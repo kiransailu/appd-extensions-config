@@ -386,48 +386,29 @@ class AppDConfigGenerator {
     }
 
     generateJSONConfig(formData) {
-        const config = {
-            server_hostname: formData.server_hostname,
-            config_types: formData.config_types,
-            created_at: new Date().toISOString(),
-            created_by: this.userData.login
-        };
+        const config = {};
 
         // Add configuration details based on selected types
-        if (formData.config_types.includes('process_monitor')) {
-            if (formData.process_monitors && formData.process_monitors.trim()) {
-                try {
-                    config.process_monitors = JSON.parse(formData.process_monitors);
-                } catch (error) {
-                    throw new Error(`Invalid JSON in Process Monitors Configuration: ${error.message}\n\nYour input: ${formData.process_monitors}`);
-                }
-            } else {
-                config.process_monitors = [];
-            }
+        if (formData.config_types.includes('process_monitor') && formData.process_monitors.length > 0) {
+            config.process_monitor = {
+                monitors: formData.process_monitors
+            };
         }
 
-        if (formData.config_types.includes('nfs_monitor')) {
-            if (formData.nfs_config && formData.nfs_config.trim()) {
-                try {
-                    config.nfs_config = JSON.parse(formData.nfs_config);
-                } catch (error) {
-                    throw new Error(`Invalid JSON in NFS Monitoring Configuration: ${error.message}\n\nYour input: ${formData.nfs_config}`);
-                }
-            } else {
-                config.nfs_config = [];
-            }
+        if (formData.config_types.includes('nfs_monitor') && formData.nfs_monitors.length > 0) {
+            config.nfs_monitor = {
+                NFS: formData.nfs_monitors
+            };
         }
 
-        if (formData.config_types.includes('monitored_files')) {
-            if (formData.file_monitoring && formData.file_monitoring.trim()) {
-                try {
-                    config.file_monitoring = JSON.parse(formData.file_monitoring);
-                } catch (error) {
-                    throw new Error(`Invalid JSON in File Monitoring Configuration: ${error.message}\n\nYour input: ${formData.file_monitoring}`);
-                }
-            } else {
-                config.file_monitoring = [];
-            }
+        if (formData.config_types.includes('service_monitor') && formData.service_monitors.length > 0) {
+            config.service_monitor = {
+                service: formData.service_monitors
+            };
+        }
+
+        if (formData.config_types.includes('monitored_files') && formData.file_monitors.length > 0) {
+            config.monitored_files = formData.file_monitors;
         }
 
         return config;
