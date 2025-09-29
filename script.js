@@ -577,7 +577,7 @@ window.addProcessMonitor = function() {
     container.insertAdjacentHTML('beforeend', monitorHTML);
 }
 
-function addNFSMonitor() {
+window.addNFSMonitor = function() {
     const container = document.getElementById('nfs-monitors-container');
     const index = ++nfsMonitorCount;
     
