@@ -538,7 +538,7 @@ let nfsMonitorCount = 0;
 let serviceMonitorCount = 0;
 let fileMonitorCount = 0;
 
-function addProcessMonitor() {
+window.addProcessMonitor = function() {
     const container = document.getElementById('process-monitors-container');
     const index = ++processMonitorCount;
     
