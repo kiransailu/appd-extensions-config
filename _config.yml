@@ -20,9 +20,6 @@ exclude:
 include:
   - _config.yml
 
-# Theme settings
-remote_theme: primer/minimal
-
 # SEO settings
 author: Your Name
 twitter_username: your_twitter
