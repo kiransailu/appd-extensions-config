@@ -35,7 +35,7 @@ class AppDConfigGenerator {
     }
 
     initiateGitHubLogin() {
-        const clientId = 'your_github_app_client_id'; // Replace with your actual GitHub App Client ID
+        const clientId = 'Iv23liHKfc6W60b0rtky'; // Your actual GitHub App Client ID
         const redirectUri = `${window.location.origin}/appd-extensions-config`;
         const scope = 'repo';
         
