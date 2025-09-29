@@ -226,10 +226,10 @@ class AppDConfigGenerator {
         
         const container = document.getElementById(containers[type]);
         if (container && container.children.length === 0) {
-            if (type === 'process_monitor') addProcessMonitor();
-            else if (type === 'nfs_monitor') addNFSMonitor();
-            else if (type === 'service_monitor') addServiceMonitor();
-            else if (type === 'monitored_files') addFileMonitor();
+            if (type === 'process_monitor') window.addProcessMonitor();
+            else if (type === 'nfs_monitor') window.addNFSMonitor();
+            else if (type === 'service_monitor') window.addServiceMonitor();
+            else if (type === 'monitored_files') window.addFileMonitor();
         }
     }
 
@@ -342,9 +342,10 @@ class AppDConfigGenerator {
             const monitor = {
                 nfsMountsToMonitor: `"${item.querySelector('[name$="nfs_mount"]').value}"`,
                 displayname: item.querySelector('[name$="displayname"]').value,
+                assignment_group: item.querySelector('[name$="assignment_group"]').value,
                 health_rules: item.querySelector('[name$="health_rules"]').value
             };
-            if (monitor.nfsMountsToMonitor && monitor.displayname) {
+            if (monitor.nfsMountsToMonitor && monitor.displayname && monitor.assignment_group) {
                 monitors.push(monitor);
             }
         });
@@ -358,9 +359,12 @@ class AppDConfigGenerator {
         const items = container.querySelectorAll('.monitor-item');
         
         items.forEach(item => {
-            const service = item.querySelector('[name$="service"]').value;
-            if (service) {
-                monitors.push({ service: service });
+            const monitor = {
+                assignment_group: item.querySelector('[name$="assignment_group"]').value,
+                service: item.querySelector('[name$="service"]').value
+            };
+            if (monitor.assignment_group && monitor.service) {
+                monitors.push(monitor);
             }
         });
         
@@ -531,15 +535,13 @@ class AppDConfigGenerator {
     }
 }
 
-}
-
 // Global functions for dynamic monitor management
 let processMonitorCount = 0;
 let nfsMonitorCount = 0;
 let serviceMonitorCount = 0;
 let fileMonitorCount = 0;
 
-function addProcessMonitor() {
+window.addProcessMonitor = function() {
     const container = document.getElementById('process-monitors-container');
     const index = ++processMonitorCount;
     
@@ -578,7 +580,7 @@ function addProcessMonitor() {
     container.insertAdjacentHTML('beforeend', monitorHTML);
 }
 
-function addNFSMonitor() {
+window.addNFSMonitor = function() {
     const container = document.getElementById('nfs-monitors-container');
     const index = ++nfsMonitorCount;
     
@@ -600,6 +602,10 @@ function addNFSMonitor() {
                     <input type="text" name="nfs_${index}_displayname" placeholder="e.g., var Log Monitoring" required>
                 </div>
                 <div class="field-group">
+                    <label>Assignment Group</label>
+                    <input type="text" name="nfs_${index}_assignment_group" placeholder="e.g., CAS, CAST" required>
+                </div>
+                <div class="field-group">
                     <label>Health Rules</label>
                     <select name="nfs_${index}_health_rules">
                         <option value="disabled">Disabled</option>
@@ -613,7 +619,7 @@ function addNFSMonitor() {
     container.insertAdjacentHTML('beforeend', monitorHTML);
 }
 
-function addServiceMonitor() {
+window.addServiceMonitor = function() {
     const container = document.getElementById('service-monitors-container');
     const index = ++serviceMonitorCount;
     
@@ -625,7 +631,11 @@ function addServiceMonitor() {
                     <i class="fas fa-trash"></i> Remove
                 </button>
             </div>
-            <div class="monitor-fields full-width">
+            <div class="monitor-fields">
+                <div class="field-group">
+                    <label>Assignment Group</label>
+                    <input type="text" name="service_${index}_assignment_group" placeholder="e.g., CAS, CAST" required>
+                </div>
                 <div class="field-group">
                     <label>Service Names (comma-separated)</label>
                     <input type="text" name="service_${index}_service" placeholder="e.g., XblGameSave, Ifsvc, Dhcp" required>
@@ -637,7 +647,7 @@ function addServiceMonitor() {
     container.insertAdjacentHTML('beforeend', monitorHTML);
 }
 
-function addFileMonitor() {
+window.addFileMonitor = function() {
     const container = document.getElementById('file-monitors-container');
     const index = ++fileMonitorCount;
     
@@ -665,7 +675,7 @@ function addFileMonitor() {
     container.insertAdjacentHTML('beforeend', monitorHTML);
 }
 
-function removeMonitor(monitorId) {
+window.removeMonitor = function(monitorId) {
     const monitor = document.getElementById(monitorId);
     if (monitor) {
         monitor.remove();
