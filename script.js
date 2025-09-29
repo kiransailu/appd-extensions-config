@@ -36,7 +36,7 @@ class AppDConfigGenerator {
 
     initiateGitHubLogin() {
         const clientId = 'Iv23liHKfc6W60b0rtky'; // Your actual GitHub App Client ID
-        const redirectUri = `${window.location.origin}/appd-extensions-config`;
+        const redirectUri = window.location.origin;
         const scope = 'repo';
         
         const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
