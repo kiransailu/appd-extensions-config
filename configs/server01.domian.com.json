@@ -1,0 +1,13 @@
+{
+  "server_hostname": "server01.domian.com",
+  "config_types": [
+    "process_monitor"
+  ],
+  "created_at": "2025-09-29T03:14:18.725Z",
+  "created_by": "kiransailu",
+  "process_monitors": {
+    "assignment_group": "PROD",
+    "displayname": "My Custom Process",
+    "regex": "java.*app"
+  }
+}
