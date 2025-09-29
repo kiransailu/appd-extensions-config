@@ -1,0 +1,11 @@
+{
+  "server_hostname": "test1.abc.com",
+  "config_types": [
+    "process_monitor",
+    "nfs_monitor",
+    "service_monitor",
+    "monitored_files"
+  ],
+  "created_at": "2025-09-29T03:37:51.061Z",
+  "created_by": "kiransailu"
+}
