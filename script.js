@@ -342,9 +342,10 @@ class AppDConfigGenerator {
             const monitor = {
                 nfsMountsToMonitor: `"${item.querySelector('[name$="nfs_mount"]').value}"`,
                 displayname: item.querySelector('[name$="displayname"]').value,
+                assignment_group: item.querySelector('[name$="assignment_group"]').value,
                 health_rules: item.querySelector('[name$="health_rules"]').value
             };
-            if (monitor.nfsMountsToMonitor && monitor.displayname) {
+            if (monitor.nfsMountsToMonitor && monitor.displayname && monitor.assignment_group) {
                 monitors.push(monitor);
             }
         });
