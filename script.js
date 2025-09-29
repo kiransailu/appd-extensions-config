@@ -628,7 +628,11 @@ window.addServiceMonitor = function() {
                     <i class="fas fa-trash"></i> Remove
                 </button>
             </div>
-            <div class="monitor-fields full-width">
+            <div class="monitor-fields">
+                <div class="field-group">
+                    <label>Assignment Group</label>
+                    <input type="text" name="service_${index}_assignment_group" placeholder="e.g., CAS, CAST" required>
+                </div>
                 <div class="field-group">
                     <label>Service Names (comma-separated)</label>
                     <input type="text" name="service_${index}_service" placeholder="e.g., XblGameSave, Ifsvc, Dhcp" required>
