@@ -210,8 +210,15 @@ class AppDConfigGenerator {
     async handleFormSubmit(event) {
         event.preventDefault();
         
+        console.log('Form submission started...');
+        
         if (!this.githubToken) {
             this.showError('Please login with GitHub first.');
+            return;
+        }
+
+        if (!this.userData) {
+            this.showError('User data not loaded. Please refresh and try again.');
             return;
         }
 
@@ -219,16 +226,23 @@ class AppDConfigGenerator {
         this.hideMessages();
 
         try {
+            console.log('Collecting form data...');
             const formData = this.collectFormData();
-            const jsonConfig = this.generateJSONConfig(formData);
+            console.log('Form data collected:', formData);
             
+            console.log('Generating JSON config...');
+            const jsonConfig = this.generateJSONConfig(formData);
+            console.log('JSON config generated:', jsonConfig);
+            
+            console.log('Creating config file...');
             await this.createConfigFile(formData.server_hostname, jsonConfig);
-            this.showSuccess('Configuration created successfully!');
+            
+            this.showSuccess(`Configuration created successfully! File: configs/${formData.server_hostname}.json`);
             this.resetForm();
             
         } catch (error) {
             console.error('Form submission error:', error);
-            this.showError(error.message || 'Failed to create configuration. Please try again.');
+            this.showError(`Error: ${error.message}`);
         } finally {
             this.showLoading(false);
         }
