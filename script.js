@@ -258,7 +258,7 @@ class AppDConfigGenerator {
     }
 
     async createConfigFile(hostname, config) {
-        const owner = 'your-username'; // Replace with your GitHub username
+        const owner = 'kiransailu'; // Replace with your GitHub username
         const repo = 'appd-extensions-config';
         const path = `configs/${hostname}.json`;
         const content = btoa(JSON.stringify(config, null, 2));
