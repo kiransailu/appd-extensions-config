@@ -35,7 +35,7 @@ class AppDConfigGenerator {
     }
 
     initiateGitHubLogin() {
-        const clientId = 'your_github_app_client_id'; // Replace with your GitHub App Client ID
+        const clientId = 'Iv23liHKfc6W60b0rtky'; // Replace with your GitHub App Client ID
         const redirectUri = window.location.origin;
         const scope = 'repo';
         
@@ -258,7 +258,7 @@ class AppDConfigGenerator {
     }
 
     async createConfigFile(hostname, config) {
-        const owner = 'your-username'; // Replace with your GitHub username
+        const owner = 'kiransailu'; // Replace with your GitHub username
         const repo = 'appd-extensions-config';
         const path = `configs/${hostname}.json`;
         const content = btoa(JSON.stringify(config, null, 2));
