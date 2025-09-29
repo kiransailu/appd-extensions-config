@@ -20,8 +20,6 @@ exclude:
 include:
   - _config.yml
 
-# Theme settings
-remote_theme: primer/minimal
 
 # SEO settings
 author: Your Name
