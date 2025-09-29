@@ -72,7 +72,7 @@ class AppDConfigGenerator {
                     </div>
                     
                     <div class="token-modal-actions">
-                        <button class="btn btn-primary" onclick="this.parentElement.parentElement.parentElement.parentElement.querySelector('.config-app').authenticateWithToken()">
+                        <button class="btn btn-primary" onclick="document.querySelector('.config-app').configInstance.authenticateWithToken()">
                             <i class="fas fa-sign-in-alt"></i> Login with Token
                         </button>
                         <button class="btn btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove()">Cancel</button>
