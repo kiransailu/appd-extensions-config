@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        button { padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Debug Dynamic Form</h1>
+    
+    <div class="debug">
+        <h3>Test Dynamic Monitors</h3>
+        <button onclick="addProcessMonitor()">Add Process Monitor</button>
+        <button onclick="addNFSMonitor()">Add NFS Monitor</button>
+        <button onclick="testCollection()">Test Data Collection</button>
+    </div>
+    
+    <div id="process-monitors-container"></div>
+    <div id="nfs-monitors-container"></div>
+    
+    <pre id="output"></pre>
+    
+    <script>
+        let processMonitorCount = 0;
+        let nfsMonitorCount = 0;
+        
+        function addProcessMonitor() {
+            const container = document.getElementById('process-monitors-container');
+            const index = ++processMonitorCount;
+            
+            const monitorHTML = `
+                <div class="monitor-item" id="process-monitor-${index}" style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                    <h4>Process Monitor #${index}</h4>
+                    <label>Assignment Group: <input type="text" name="process_${index}_assignment_group" value="CAS"></label><br>
+                    <label>Display Name: <input type="text" name="process_${index}_displayname" value="Test Process"></label><br>
+                    <label>Regex: <input type="text" name="process_${index}_regex" value="/usr/sbin/httpd"></label><br>
+                    <label>Health Rules: <select name="process_${index}_health_rules"><option value="enabled">Enabled</option></select></label><br>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', monitorHTML);
+        }
+        
+        function addNFSMonitor() {
+            const container = document.getElementById('nfs-monitors-container');
+            const index = ++nfsMonitorCount;
+            
+            const monitorHTML = `
+                <div class="monitor-item" id="nfs-monitor-${index}" style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                    <h4>NFS Monitor #${index}</h4>
+                    <label>NFS Mount: <input type="text" name="nfs_${index}_nfs_mount" value="/cebitq/test"></label><br>
+                    <label>Display Name: <input type="text" name="nfs_${index}_displayname" value="Test NFS"></label><br>
+                    <label>Assignment Group: <input type="text" name="nfs_${index}_assignment_group" value="CAS"></label><br>
+                    <label>Health Rules: <select name="nfs_${index}_health_rules"><option value="disabled">Disabled</option></select></label><br>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', monitorHTML);
+        }
+        
+        function testCollection() {
+            const processMonitors = collectProcessMonitors();
+            const nfsMonitors = collectNFSMonitors();
+            
+            const result = {
+                process_monitors: processMonitors,
+                nfs_monitors: nfsMonitors,
+                json_structure: generateJSON(processMonitors, nfsMonitors)
+            };
+            
+            document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+        }
+        
+        function collectProcessMonitors() {
+            const monitors = [];
+            const container = document.getElementById('process-monitors-container');
+            const items = container.querySelectorAll('.monitor-item');
+            
+            items.forEach(item => {
+                const monitor = {
+                    assignment_group: item.querySelector('[name$="assignment_group"]').value,
+                    displayname: item.querySelector('[name$="displayname"]').value,
+                    regex: item.querySelector('[name$="regex"]').value,
+                    health_rules: item.querySelector('[name$="health_rules"]').value
+                };
+                if (monitor.assignment_group && monitor.displayname && monitor.regex) {
+                    monitors.push(monitor);
+                }
+            });
+            
+            return monitors;
+        }
+        
+        function collectNFSMonitors() {
+            const monitors = [];
+            const container = document.getElementById('nfs-monitors-container');
+            const items = container.querySelectorAll('.monitor-item');
+            
+            items.forEach(item => {
+                const monitor = {
+                    nfsMountsToMonitor: `"${item.querySelector('[name$="nfs_mount"]').value}"`,
+                    displayname: item.querySelector('[name$="displayname"]').value,
+                    assignment_group: item.querySelector('[name$="assignment_group"]').value,
+                    health_rules: item.querySelector('[name$="health_rules"]').value
+                };
+                if (monitor.nfsMountsToMonitor && monitor.displayname && monitor.assignment_group) {
+                    monitors.push(monitor);
+                }
+            });
+            
+            return monitors;
+        }
+        
+        function generateJSON(processMonitors, nfsMonitors) {
+            const config = {};
+            
+            if (processMonitors.length > 0) {
+                config.process_monitor = {
+                    monitors: processMonitors
+                };
+            }
+            
+            if (nfsMonitors.length > 0) {
+                config.nfs_monitor = {
+                    NFS: nfsMonitors
+                };
+            }
+            
+            return config;
+        }
+    </script>
+</body>
+</html>
