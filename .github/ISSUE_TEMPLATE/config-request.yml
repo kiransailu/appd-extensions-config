@@ -1,0 +1,87 @@
+name: Selective Appdynamics extensions Server Configuration
+description: Create server config with only needed monitoring components for Appdynamics extensions
+title: "[Config] New config for [server-hostname]"
+labels: ["config-request"]
+body:
+  - type: input
+    id: server_hostname
+    attributes:
+      label: Server Hostname (FQDN)
+      description: Full server hostname (e.g., pac4aapwdl11v.corp.caremark.com)
+      placeholder: "server01.domain.com"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: config_types
+    attributes:
+      label: Configuration Types Needed
+      description: Select which monitoring components to include
+      multiple: true
+      options:
+        - process_monitor
+        - nfs_monitor
+        - monitored_files
+    validations:
+      required: true
+
+  - type: textarea
+    id: process_monitors
+    attributes:
+      label: Process Monitors Configuration
+      description: |
+        Provide JSON array of process monitors to configure.
+        
+        Example:
+        ```json
+        [
+          {
+            "assignment_group": "PROD",
+            "displayname": "My Custom Process",
+            "regex": "java.*app"
+          }
+        ]
+        ```
+      value: ""
+    validations:
+      required: false
+
+  - type: textarea
+    id: nfs_config
+    attributes:
+      label: NFS Monitoring Configuration
+      description: |
+        Provide JSON array of NFS mounts to monitor.
+        
+        Example:
+        ```json
+        [
+          {
+            "mount_path": "/nfs/shared",
+            "check_availability": true
+          }
+        ]
+        ```
+      value: ""
+    validations:
+      required: false
+
+  - type: textarea
+    id: file_monitoring
+    attributes:
+      label: File Monitoring Configuration
+      description: |
+        Provide JSON array of files to monitor.
+        
+        Example:
+        ```json
+        [
+          {
+            "name": "/opt/app/logs/app.log",
+            "last_modified_check": 30
+          }
+        ]
+        ```
+      value: ""
+    validations:
+      required: false
