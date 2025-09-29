@@ -600,6 +600,10 @@ function addNFSMonitor() {
                     <input type="text" name="nfs_${index}_displayname" placeholder="e.g., var Log Monitoring" required>
                 </div>
                 <div class="field-group">
+                    <label>Assignment Group</label>
+                    <input type="text" name="nfs_${index}_assignment_group" placeholder="e.g., CAS, CAST" required>
+                </div>
+                <div class="field-group">
                     <label>Health Rules</label>
                     <select name="nfs_${index}_health_rules">
                         <option value="disabled">Disabled</option>
