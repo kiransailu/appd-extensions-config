@@ -1,12 +1,12 @@
 title: AppDynamics Extensions Config Generator
 description: Create server config with only needed monitoring components for AppDynamics extensions
 baseurl: ""
-url: "https://your-username.github.io"
+url: "https://kiransailu.github.io/appd-extensions-config/"
 
 # SEO settings
-author: Your Name
+author: Ravi Kiran
 twitter_username: your_twitter
-github_username: your-username
+github_username: kiransailu
 
 # Google Analytics (optional)
 # google_analytics: UA-NNNNNNNN-N
