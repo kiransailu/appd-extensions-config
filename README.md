@@ -30,8 +30,8 @@ For authentication to work, you need to create a GitHub App:
 2. Click "New GitHub App"
 3. Fill in the required fields:
    - **GitHub App name**: `AppD Extensions Config Generator`
-   - **Homepage URL**: `https://your-username.github.io/appd-extensions-config`
-   - **Authorization callback URL**: `https://your-username.github.io/appd-extensions-config`
+   - **Homepage URL**: `https://kiransailu.github.io/appd-extensions-config`
+   - **Authorization callback URL**: `https://kiransailu.github.io/appd-extensions-config`
 4. Under "Repository permissions":
    - **Contents**: Read & write
    - **Metadata**: Read
@@ -45,23 +45,23 @@ Update the following files with your information:
 #### `script.js`
 ```javascript
 // Line 32: Replace with your GitHub App Client ID
-const clientId = 'your_github_app_client_id';
+const clientId = 'Iv23liHKfc6W60b0rtky';
 
 // Line 120: Replace with your GitHub username
-const owner = 'your-username';
+const owner = 'kiransailu';
 ```
 
 #### `_config.yml`
 ```yaml
-url: "https://your-username.github.io"
-github_username: your-username
-author: Your Name
+url: "https://kiransailu.github.io"
+github_username: kiransailu
+author: Ravi Kiran
 ```
 
 #### `index.html`
 ```html
 <!-- Line 134: Update GitHub repository link -->
-<a href="https://github.com/your-username/appd-extensions-config" target="_blank">
+<a href="https://github.com/kiransailu/appd-extensions-config" target="_blank">
 ```
 
 ### 4. Backend API (Optional but Recommended)
