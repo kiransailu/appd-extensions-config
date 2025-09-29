@@ -117,52 +117,12 @@ class AppDConfigGenerator {
     }
 
     async handleOAuthCallback() {
+        // No longer needed - we're using Personal Access Tokens
+        // Clear any OAuth parameters from URL if present
         const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        
-        if (code) {
-            try {
-                // Clear URL parameters
-                window.history.replaceState({}, document.title, window.location.pathname);
-                
-                // Exchange code for token (this would typically go through your backend)
-                const token = await this.exchangeCodeForToken(code);
-                
-                if (token) {
-                    localStorage.setItem('github_token', token);
-                    await this.fetchUserData(token);
-                    this.updateUI();
-                }
-            } catch (error) {
-                console.error('OAuth callback error:', error);
-                this.showError('Authentication failed. Please try again.');
-            }
+        if (urlParams.get('code')) {
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
-    }
-
-    async exchangeCodeForToken(code) {
-        // In a production environment, this should go through your backend
-        // For demonstration, we'll simulate token exchange
-        // You need to implement a backend endpoint to handle this securely
-        
-        try {
-            // This is a placeholder - implement your backend token exchange
-            const response = await fetch('/api/auth/github', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code })
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                return data.access_token;
-            }
-        } catch (error) {
-            console.error('Token exchange error:', error);
-        }
-        
-        // For demo purposes - in production, remove this and implement proper backend
-        return prompt('Please enter your GitHub Personal Access Token:');
     }
 
     async fetchUserData(token) {
