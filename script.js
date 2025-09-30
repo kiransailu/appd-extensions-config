@@ -16,9 +16,9 @@ class AppDConfigGenerator {
     }
 
     bindEvents() {
-        // GitHub login buttons
-        document.getElementById('github-login')?.addEventListener('click', () => this.initiateGitHubLogin());
-        document.getElementById('github-login-2')?.addEventListener('click', () => this.initiateGitHubLogin());
+        // GitHub login buttons (now shows PAT modal)
+        document.getElementById('github-login')?.addEventListener('click', () => this.showTokenModal());
+        document.getElementById('github-login-2')?.addEventListener('click', () => this.showTokenModal());
         
         // Logout button
         document.getElementById('logout-btn')?.addEventListener('click', () => this.logout());
@@ -33,14 +33,6 @@ class AppDConfigGenerator {
         document.querySelectorAll('input[name="config_types"]').forEach(checkbox => {
             checkbox.addEventListener('change', () => this.handleConfigTypeToggle());
         });
-
-        // Handle OAuth callback
-        this.handleOAuthCallback();
-    }
-
-    initiateGitHubLogin() {
-        // Skip OAuth completely for enterprise - use Personal Access Token
-        this.showTokenModal();
     }
 
     showTokenModal() {
@@ -49,11 +41,11 @@ class AppDConfigGenerator {
         modal.innerHTML = `
             <div class="token-modal-content">
                 <div class="token-modal-header">
-                    <h3><i class="fab fa-github"></i> GitHub Authentication</h3>
+                    <h3><i class="fab fa-github"></i> GitHub Enterprise Authentication</h3>
                     <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
                 </div>
                 <div class="token-modal-body">
-                    <p><strong>To use this application, you need a GitHub Personal Access Token.</strong></p>
+                    <p><strong>To use this application, you need a GitHub Enterprise Personal Access Token.</strong></p>
                     
                     <div class="steps">
                         <h4>How to get your Enterprise GitHub token:</h4>
@@ -104,8 +96,8 @@ class AppDConfigGenerator {
             return;
         }
         
-        if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
-            alert('Invalid token format. GitHub tokens should start with "ghp_" or "github_pat_"');
+        if (!token.startsWith('ghp_') && !token.startsWith('github_pat_') && !token.startsWith('ghs_')) {
+            alert('Invalid token format. GitHub tokens should start with "ghp_", "github_pat_", or "ghs_"');
             return;
         }
         
@@ -123,17 +115,6 @@ class AppDConfigGenerator {
         }
     }
 
-    async handleOAuthCallback() {
-        // OAuth disabled for enterprise environment
-        // Clear any OAuth parameters from URL if present
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('code') || urlParams.get('error')) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-            // Show token modal instead
-            this.showTokenModal();
-        }
-    }
-
     async fetchUserData(token) {
         try {
             const response = await fetch('https://api.github.com/user', {
@@ -143,6 +124,10 @@ class AppDConfigGenerator {
             if (response.ok) {
                 this.userData = await response.json();
                 this.githubToken = token;
+                // Store token locally
+                localStorage.setItem('github_token', token);
+            } else {
+                throw new Error(`GitHub API error: ${response.status}`);
             }
         } catch (error) {
             console.error('Failed to fetch user data:', error);
@@ -424,7 +409,7 @@ class AppDConfigGenerator {
     }
 
     async createConfigFile(hostname, config) {
-        const owner = 'kiransailu'; // Replace with your GitHub username
+        const owner = 'kiransailu'; // Your GitHub username
         const repo = 'appd-extensions-config';
         const path = `configs/${hostname}.json`;
         const content = btoa(JSON.stringify(config, null, 2));
