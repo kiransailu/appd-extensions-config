@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppD Config Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #333; }
+        button { padding: 10px 20px; background: #007cba; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #005a87; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AppDynamics Extensions Config Generator</h1>
+        <p>This is a simplified version to test GitHub Pages deployment.</p>
+        
+        <button onclick="testAlert()">Test JavaScript</button>
+        
+        <h2>Status</h2>
+        <ul>
+            <li>✅ HTML is loading</li>
+            <li>✅ CSS is working</li>
+            <li id="js-status">❓ JavaScript test pending</li>
+        </ul>
+        
+        <h3>Next Steps</h3>
+        <p>If this page works, <a href="index.html">click here to go to the full application</a>.</p>
+    </div>
+    
+    <script>
+        function testAlert() {
+            document.getElementById('js-status').innerHTML = '✅ JavaScript is working';
+            alert('JavaScript is working! GitHub Pages is properly configured.');
+        }
+        
+        console.log('Simple test page loaded successfully');
+    </script>
+</body>
+</html>
