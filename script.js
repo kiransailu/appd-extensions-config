@@ -4,7 +4,6 @@ class AppDConfigGenerator {
         this.userData = null;
         this.init();
         
-        // Add reference to instance for modal methods
         var container = document.querySelector('.container');
         if (container) {
             container.classList.add('config-app');
@@ -21,73 +20,132 @@ class AppDConfigGenerator {
     bindEvents() {
         var self = this;
         
-        // GitHub login buttons (now shows PAT modal)
         var loginBtn1 = document.getElementById('github-login');
         if (loginBtn1) {
-            loginBtn1.addEventListener('click', function() { self.showTokenModal(); });
+            loginBtn1.addEventListener('click', function() { 
+                self.showTokenModal(); 
+            });
         }
         
         var loginBtn2 = document.getElementById('github-login-2');
         if (loginBtn2) {
-            loginBtn2.addEventListener('click', function() { self.showTokenModal(); });
+            loginBtn2.addEventListener('click', function() { 
+                self.showTokenModal(); 
+            });
         }
         
-        // Logout button
         var logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', function() { self.logout(); });
+            logoutBtn.addEventListener('click', function() { 
+                self.logout(); 
+            });
         }
         
-        // Form submission
         var configForm = document.getElementById('config-form');
         if (configForm) {
-            configForm.addEventListener('submit', function(e) { self.handleFormSubmit(e); });
-            configForm.addEventListener('reset', function() { self.resetForm(); });
+            configForm.addEventListener('submit', function(e) { 
+                self.handleFormSubmit(e); 
+            });
+            configForm.addEventListener('reset', function() { 
+                self.resetForm(); 
+            });
         }
         
-        // Configuration type checkboxes
         var checkboxes = document.querySelectorAll('input[name="config_types"]');
         checkboxes.forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() { self.handleConfigTypeToggle(); });
+            checkbox.addEventListener('change', function() { 
+                self.handleConfigTypeToggle(); 
+            });
         });
     }
 
     showTokenModal() {
         var modal = document.createElement('div');
         modal.className = 'token-modal';
-        modal.innerHTML = 
-            '<div class="token-modal-content">' +
-                '<div class="token-modal-header">' +
-                    '<h3><i class="fab fa-github"></i> GitHub Enterprise Authentication</h3>' +
-                    '<button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>' +
-                '</div>' +
-                '<div class="token-modal-body">' +
-                    '<p><strong>To use this application, you need a GitHub Enterprise Personal Access Token.</strong></p>' +
-                    '<div class="steps">' +
-                        '<h4>How to get your Enterprise GitHub token:</h4>' +
-                        '<ol>' +
-                            '<li>Go to your <strong>GitHub Enterprise Settings</strong> → <strong>Personal Access Tokens</strong></li>' +
-                            '<li>Click <strong>"Generate new token (classic)"</strong></li>' +
-                            '<li>Set <strong>Description</strong>: "AppD Extensions Config Generator"</li>' +
-                            '<li>Set <strong>Expiration</strong> to your preference (30 days recommended)</li>' +
-                            '<li>Select <strong>"repo"</strong> scope (Full control of private repositories)</li>' +
-                            '<li>Click <strong>"Generate token"</strong></li>' +
-                            '<li>Copy the token and paste it below</li>' +
-                        '</ol>' +
-                    '</div>' +
-                    '<div class="token-input-group">' +
-                        '<label for="github-token">GitHub Personal Access Token:</label>' +
-                        '<input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />' +
-                        '<small>Your token is stored locally and never sent to any server except GitHub.</small>' +
-                    '</div>' +
-                    '<div class="token-modal-actions">' +
-                        '<button class="btn btn-primary" onclick="document.querySelector(\'.config-app\').configInstance.authenticateWithToken()">' +
-                            '<i class="fas fa-sign-in-alt"></i> Login with Token' +
-                        '</button>' +
-                        '<button class="btn btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove()">Cancel</button>' +
-                    '</div>' +
-                '</div>' +
-            '</div>';
+        
+        var modalContent = document.createElement('div');
+        modalContent.className = 'token-modal-content';
+        
+        var modalHeader = document.createElement('div');
+        modalHeader.className = 'token-modal-header';
+        modalHeader.innerHTML = '<h3><i class="fab fa-github"></i> GitHub Enterprise Authentication</h3>';
+        
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'close-modal';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.onclick = function() {
+            modal.remove();
+        };
+        modalHeader.appendChild(closeBtn);
+        
+        var modalBody = document.createElement('div');
+        modalBody.className = 'token-modal-body';
+        
+        var description = document.createElement('p');
+        description.innerHTML = '<strong>To use this application, you need a GitHub Enterprise Personal Access Token.</strong>';
+        
+        var steps = document.createElement('div');
+        steps.className = 'steps';
+        steps.innerHTML = '<h4>How to get your Enterprise GitHub token:</h4>' +
+            '<ol>' +
+            '<li>Go to your <strong>GitHub Enterprise Settings</strong> → <strong>Personal Access Tokens</strong></li>' +
+            '<li>Click <strong>"Generate new token (classic)"</strong></li>' +
+            '<li>Set <strong>Description</strong>: "AppD Extensions Config Generator"</li>' +
+            '<li>Set <strong>Expiration</strong> to your preference (30 days recommended)</li>' +
+            '<li>Select <strong>"repo"</strong> scope (Full control of private repositories)</li>' +
+            '<li>Click <strong>"Generate token"</strong></li>' +
+            '<li>Copy the token and paste it below</li>' +
+            '</ol>';
+        
+        var inputGroup = document.createElement('div');
+        inputGroup.className = 'token-input-group';
+        
+        var label = document.createElement('label');
+        label.setAttribute('for', 'github-token');
+        label.textContent = 'GitHub Personal Access Token:';
+        
+        var input = document.createElement('input');
+        input.type = 'password';
+        input.id = 'github-token';
+        input.placeholder = 'ghp_xxxxxxxxxxxxxxxxxxxx';
+        
+        var help = document.createElement('small');
+        help.textContent = 'Your token is stored locally and never sent to any server except GitHub.';
+        
+        inputGroup.appendChild(label);
+        inputGroup.appendChild(input);
+        inputGroup.appendChild(help);
+        
+        var actions = document.createElement('div');
+        actions.className = 'token-modal-actions';
+        
+        var loginBtn = document.createElement('button');
+        loginBtn.className = 'btn btn-primary';
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login with Token';
+        
+        var self = this;
+        loginBtn.onclick = function() {
+            self.authenticateWithToken();
+        };
+        
+        var cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn btn-secondary';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.onclick = function() {
+            modal.remove();
+        };
+        
+        actions.appendChild(loginBtn);
+        actions.appendChild(cancelBtn);
+        
+        modalBody.appendChild(description);
+        modalBody.appendChild(steps);
+        modalBody.appendChild(inputGroup);
+        modalBody.appendChild(actions);
+        
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(modalBody);
+        modal.appendChild(modalContent);
         
         document.body.appendChild(modal);
         
@@ -95,7 +153,6 @@ class AppDConfigGenerator {
         if (tokenInput) {
             tokenInput.focus();
             
-            // Handle Enter key
             var self = this;
             tokenInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -123,7 +180,6 @@ class AppDConfigGenerator {
         
         var self = this;
         this.fetchUserData(token).then(function() {
-            // Close modal and update UI
             var modal = document.querySelector('.token-modal');
             if (modal) modal.remove();
             self.updateUI();
@@ -142,7 +198,6 @@ class AppDConfigGenerator {
                 return response.json().then(function(userData) {
                     self.userData = userData;
                     self.githubToken = token;
-                    // Store token locally
                     localStorage.setItem('github_token', token);
                 });
             } else {
@@ -183,19 +238,16 @@ class AppDConfigGenerator {
         var loginRequired = document.getElementById('login-required');
 
         if (this.userData && this.githubToken) {
-            // User is authenticated
             if (loginSection) loginSection.style.display = 'none';
             if (userSection) userSection.style.display = 'flex';
             if (configForm) configForm.style.display = 'block';
             if (loginRequired) loginRequired.style.display = 'none';
 
-            // Update user info
             var userAvatar = document.getElementById('user-avatar');
             var userName = document.getElementById('user-name');
             if (userAvatar) userAvatar.src = this.userData.avatar_url;
             if (userName) userName.textContent = this.userData.login;
         } else {
-            // User is not authenticated
             if (loginSection) loginSection.style.display = 'flex';
             if (userSection) userSection.style.display = 'none';
             if (configForm) configForm.style.display = 'none';
@@ -218,11 +270,9 @@ class AppDConfigGenerator {
             if (section) {
                 if (checkbox.checked) {
                     section.style.display = 'block';
-                    // Add initial monitor if container is empty
                     self.addInitialMonitor(checkbox.value);
                 } else {
                     section.style.display = 'none';
-                    // Clear monitors when unchecked
                     self.clearMonitors(checkbox.value);
                 }
             }
@@ -319,7 +369,6 @@ class AppDConfigGenerator {
             file_monitors: this.collectFileMonitors()
         };
 
-        // Validation
         if (!data.server_hostname) {
             throw new Error('Server hostname is required.');
         }
@@ -430,7 +479,6 @@ class AppDConfigGenerator {
     generateJSONConfig(formData) {
         var config = {};
 
-        // Add configuration details based on selected types
         if (formData.config_types.indexOf('process_monitor') !== -1 && formData.process_monitors.length > 0) {
             config.process_monitor = {
                 monitors: formData.process_monitors
@@ -457,14 +505,12 @@ class AppDConfigGenerator {
     }
 
     createConfigFile(hostname, config) {
-        var owner = 'kiransailu'; // Your GitHub username
+        var owner = 'kiransailu';
         var repo = 'appd-extensions-config';
         var path = 'configs/' + hostname + '.json';
         var content = btoa(JSON.stringify(config, null, 2));
-
         var self = this;
         
-        // Check if file exists first
         return fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path, {
             headers: { 'Authorization': 'token ' + this.githubToken }
         }).then(function(existingResponse) {
@@ -477,10 +523,8 @@ class AppDConfigGenerator {
             }
             return null;
         }).catch(function() {
-            // File doesn't exist, which is fine
             return null;
         }).then(function(sha) {
-            // Create or update file
             console.log('Creating file at: https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path);
             
             var requestBody = {
@@ -541,7 +585,6 @@ class AppDConfigGenerator {
         var form = document.getElementById('config-form');
         if (form) form.reset();
         
-        // Clear all dynamic monitors
         var containers = [
             'process-monitors-container',
             'nfs-monitors-container', 
@@ -601,7 +644,6 @@ class AppDConfigGenerator {
     }
 }
 
-// Global functions for dynamic monitor management
 var processMonitorCount = 0;
 var nfsMonitorCount = 0;
 var serviceMonitorCount = 0;
@@ -611,130 +653,234 @@ window.addProcessMonitor = function() {
     var container = document.getElementById('process-monitors-container');
     var index = ++processMonitorCount;
     
-    var monitorHTML = 
-        '<div class="monitor-item" id="process-monitor-' + index + '">' +
-            '<div class="monitor-header">' +
-                '<h4 class="monitor-title">Process Monitor #' + index + '</h4>' +
-                '<button type="button" class="btn-remove" onclick="removeMonitor(\'process-monitor-' + index + '\')">' +
-                    '<i class="fas fa-trash"></i> Remove' +
-                '</button>' +
-            '</div>' +
-            '<div class="monitor-fields">' +
-                '<div class="field-group">' +
-                    '<label>Assignment Group</label>' +
-                    '<input type="text" name="process_' + index + '_assignment_group" placeholder="e.g., CAS, CAST" required>' +
-                '</div>' +
-                '<div class="field-group">' +
-                    '<label>Display Name</label>' +
-                    '<input type="text" name="process_' + index + '_displayname" placeholder="e.g., Apache Service Monitor" required>' +
-                '</div>' +
-                '<div class="field-group field-full-width">' +
-                    '<label>Process Regex</label>' +
-                    '<input type="text" name="process_' + index + '_regex" placeholder="e.g., /usr/sbin/httpd -f /usr/local/apache/..." required>' +
-                '</div>' +
-                '<div class="field-group">' +
-                    '<label>Health Rules</label>' +
-                    '<select name="process_' + index + '_health_rules">' +
-                        '<option value="enabled">Enabled</option>' +
-                        '<option value="disabled">Disabled</option>' +
-                    '</select>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
+    var monitorDiv = document.createElement('div');
+    monitorDiv.className = 'monitor-item';
+    monitorDiv.id = 'process-monitor-' + index;
     
-    container.insertAdjacentHTML('beforeend', monitorHTML);
+    var headerDiv = document.createElement('div');
+    headerDiv.className = 'monitor-header';
+    
+    var title = document.createElement('h4');
+    title.className = 'monitor-title';
+    title.textContent = 'Process Monitor #' + index;
+    
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-remove';
+    removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+    removeBtn.onclick = function() {
+        window.removeMonitor('process-monitor-' + index);
+    };
+    
+    headerDiv.appendChild(title);
+    headerDiv.appendChild(removeBtn);
+    
+    var fieldsDiv = document.createElement('div');
+    fieldsDiv.className = 'monitor-fields';
+    
+    // Assignment Group
+    var assignmentGroup = document.createElement('div');
+    assignmentGroup.className = 'field-group';
+    assignmentGroup.innerHTML = '<label>Assignment Group</label>' +
+        '<input type="text" name="process_' + index + '_assignment_group" placeholder="e.g., CAS, CAST" required>';
+    
+    // Display Name
+    var displayName = document.createElement('div');
+    displayName.className = 'field-group';
+    displayName.innerHTML = '<label>Display Name</label>' +
+        '<input type="text" name="process_' + index + '_displayname" placeholder="e.g., Apache Service Monitor" required>';
+    
+    // Process Regex
+    var processRegex = document.createElement('div');
+    processRegex.className = 'field-group field-full-width';
+    processRegex.innerHTML = '<label>Process Regex</label>' +
+        '<input type="text" name="process_' + index + '_regex" placeholder="e.g., /usr/sbin/httpd -f /usr/local/apache/..." required>';
+    
+    // Health Rules
+    var healthRules = document.createElement('div');
+    healthRules.className = 'field-group';
+    healthRules.innerHTML = '<label>Health Rules</label>' +
+        '<select name="process_' + index + '_health_rules">' +
+        '<option value="enabled">Enabled</option>' +
+        '<option value="disabled">Disabled</option>' +
+        '</select>';
+    
+    fieldsDiv.appendChild(assignmentGroup);
+    fieldsDiv.appendChild(displayName);
+    fieldsDiv.appendChild(processRegex);
+    fieldsDiv.appendChild(healthRules);
+    
+    monitorDiv.appendChild(headerDiv);
+    monitorDiv.appendChild(fieldsDiv);
+    
+    container.appendChild(monitorDiv);
 };
 
 window.addNFSMonitor = function() {
     var container = document.getElementById('nfs-monitors-container');
     var index = ++nfsMonitorCount;
     
-    var monitorHTML = 
-        '<div class="monitor-item" id="nfs-monitor-' + index + '">' +
-            '<div class="monitor-header">' +
-                '<h4 class="monitor-title">NFS Monitor #' + index + '</h4>' +
-                '<button type="button" class="btn-remove" onclick="removeMonitor(\'nfs-monitor-' + index + '\')">' +
-                    '<i class="fas fa-trash"></i> Remove' +
-                '</button>' +
-            '</div>' +
-            '<div class="monitor-fields">' +
-                '<div class="field-group">' +
-                    '<label>NFS Mount Path</label>' +
-                    '<input type="text" name="nfs_' + index + '_nfs_mount" placeholder="e.g., /cebitq/cebitiop" required>' +
-                '</div>' +
-                '<div class="field-group">' +
-                    '<label>Display Name</label>' +
-                    '<input type="text" name="nfs_' + index + '_displayname" placeholder="e.g., var Log Monitoring" required>' +
-                '</div>' +
-                '<div class="field-group">' +
-                    '<label>Assignment Group</label>' +
-                    '<input type="text" name="nfs_' + index + '_assignment_group" placeholder="e.g., CAS, CAST" required>' +
-                '</div>' +
-                '<div class="field-group">' +
-                    '<label>Health Rules</label>' +
-                    '<select name="nfs_' + index + '_health_rules">' +
-                        '<option value="disabled">Disabled</option>' +
-                        '<option value="enabled">Enabled</option>' +
-                    '</select>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
+    var monitorDiv = document.createElement('div');
+    monitorDiv.className = 'monitor-item';
+    monitorDiv.id = 'nfs-monitor-' + index;
     
-    container.insertAdjacentHTML('beforeend', monitorHTML);
+    var headerDiv = document.createElement('div');
+    headerDiv.className = 'monitor-header';
+    
+    var title = document.createElement('h4');
+    title.className = 'monitor-title';
+    title.textContent = 'NFS Monitor #' + index;
+    
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-remove';
+    removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+    removeBtn.onclick = function() {
+        window.removeMonitor('nfs-monitor-' + index);
+    };
+    
+    headerDiv.appendChild(title);
+    headerDiv.appendChild(removeBtn);
+    
+    var fieldsDiv = document.createElement('div');
+    fieldsDiv.className = 'monitor-fields';
+    
+    // NFS Mount Path
+    var nfsMount = document.createElement('div');
+    nfsMount.className = 'field-group';
+    nfsMount.innerHTML = '<label>NFS Mount Path</label>' +
+        '<input type="text" name="nfs_' + index + '_nfs_mount" placeholder="e.g., /cebitq/cebitiop" required>';
+    
+    // Display Name
+    var displayName = document.createElement('div');
+    displayName.className = 'field-group';
+    displayName.innerHTML = '<label>Display Name</label>' +
+        '<input type="text" name="nfs_' + index + '_displayname" placeholder="e.g., var Log Monitoring" required>';
+    
+    // Assignment Group
+    var assignmentGroup = document.createElement('div');
+    assignmentGroup.className = 'field-group';
+    assignmentGroup.innerHTML = '<label>Assignment Group</label>' +
+        '<input type="text" name="nfs_' + index + '_assignment_group" placeholder="e.g., CAS, CAST" required>';
+    
+    // Health Rules
+    var healthRules = document.createElement('div');
+    healthRules.className = 'field-group';
+    healthRules.innerHTML = '<label>Health Rules</label>' +
+        '<select name="nfs_' + index + '_health_rules">' +
+        '<option value="disabled">Disabled</option>' +
+        '<option value="enabled">Enabled</option>' +
+        '</select>';
+    
+    fieldsDiv.appendChild(nfsMount);
+    fieldsDiv.appendChild(displayName);
+    fieldsDiv.appendChild(assignmentGroup);
+    fieldsDiv.appendChild(healthRules);
+    
+    monitorDiv.appendChild(headerDiv);
+    monitorDiv.appendChild(fieldsDiv);
+    
+    container.appendChild(monitorDiv);
 };
 
 window.addServiceMonitor = function() {
     var container = document.getElementById('service-monitors-container');
     var index = ++serviceMonitorCount;
     
-    var monitorHTML = 
-        '<div class="monitor-item" id="service-monitor-' + index + '">' +
-            '<div class="monitor-header">' +
-                '<h4 class="monitor-title">Service Monitor #' + index + '</h4>' +
-                '<button type="button" class="btn-remove" onclick="removeMonitor(\'service-monitor-' + index + '\')">' +
-                    '<i class="fas fa-trash"></i> Remove' +
-                '</button>' +
-            '</div>' +
-            '<div class="monitor-fields">' +
-                '<div class="field-group">' +
-                    '<label>Assignment Group</label>' +
-                    '<input type="text" name="service_' + index + '_assignment_group" placeholder="e.g., CAS, CAST" required>' +
-                '</div>' +
-                '<div class="field-group">' +
-                    '<label>Service Names (comma-separated)</label>' +
-                    '<input type="text" name="service_' + index + '_service" placeholder="e.g., XblGameSave, Ifsvc, Dhcp" required>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
+    var monitorDiv = document.createElement('div');
+    monitorDiv.className = 'monitor-item';
+    monitorDiv.id = 'service-monitor-' + index;
     
-    container.insertAdjacentHTML('beforeend', monitorHTML);
+    var headerDiv = document.createElement('div');
+    headerDiv.className = 'monitor-header';
+    
+    var title = document.createElement('h4');
+    title.className = 'monitor-title';
+    title.textContent = 'Service Monitor #' + index;
+    
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-remove';
+    removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+    removeBtn.onclick = function() {
+        window.removeMonitor('service-monitor-' + index);
+    };
+    
+    headerDiv.appendChild(title);
+    headerDiv.appendChild(removeBtn);
+    
+    var fieldsDiv = document.createElement('div');
+    fieldsDiv.className = 'monitor-fields';
+    
+    // Assignment Group
+    var assignmentGroup = document.createElement('div');
+    assignmentGroup.className = 'field-group';
+    assignmentGroup.innerHTML = '<label>Assignment Group</label>' +
+        '<input type="text" name="service_' + index + '_assignment_group" placeholder="e.g., CAS, CAST" required>';
+    
+    // Service Names
+    var serviceNames = document.createElement('div');
+    serviceNames.className = 'field-group';
+    serviceNames.innerHTML = '<label>Service Names (comma-separated)</label>' +
+        '<input type="text" name="service_' + index + '_service" placeholder="e.g., XblGameSave, Ifsvc, Dhcp" required>';
+    
+    fieldsDiv.appendChild(assignmentGroup);
+    fieldsDiv.appendChild(serviceNames);
+    
+    monitorDiv.appendChild(headerDiv);
+    monitorDiv.appendChild(fieldsDiv);
+    
+    container.appendChild(monitorDiv);
 };
 
 window.addFileMonitor = function() {
     var container = document.getElementById('file-monitors-container');
     var index = ++fileMonitorCount;
     
-    var monitorHTML = 
-        '<div class="monitor-item" id="file-monitor-' + index + '">' +
-            '<div class="monitor-header">' +
-                '<h4 class="monitor-title">File Monitor #' + index + '</h4>' +
-                '<button type="button" class="btn-remove" onclick="removeMonitor(\'file-monitor-' + index + '\')">' +
-                    '<i class="fas fa-trash"></i> Remove' +
-                '</button>' +
-            '</div>' +
-            '<div class="monitor-fields">' +
-                '<div class="field-group">' +
-                    '<label>File Path</label>' +
-                    '<input type="text" name="file_' + index + '_file_name" placeholder="e.g., /u01/FileGPS/ST_Inbound/logs/ST_INBOUND_CLIENT.log" required>' +
-                '</div>' +
-                '<div class="field-group">' +
-                    '<label>Last Modified Check (minutes)</label>' +
-                    '<input type="number" name="file_' + index + '_last_modified" value="15" min="1" required>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
+    var monitorDiv = document.createElement('div');
+    monitorDiv.className = 'monitor-item';
+    monitorDiv.id = 'file-monitor-' + index;
     
-    container.insertAdjacentHTML('beforeend', monitorHTML);
+    var headerDiv = document.createElement('div');
+    headerDiv.className = 'monitor-header';
+    
+    var title = document.createElement('h4');
+    title.className = 'monitor-title';
+    title.textContent = 'File Monitor #' + index;
+    
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-remove';
+    removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+    removeBtn.onclick = function() {
+        window.removeMonitor('file-monitor-' + index);
+    };
+    
+    headerDiv.appendChild(title);
+    headerDiv.appendChild(removeBtn);
+    
+    var fieldsDiv = document.createElement('div');
+    fieldsDiv.className = 'monitor-fields';
+    
+    // File Path
+    var filePath = document.createElement('div');
+    filePath.className = 'field-group';
+    filePath.innerHTML = '<label>File Path</label>' +
+        '<input type="text" name="file_' + index + '_file_name" placeholder="e.g., /u01/FileGPS/ST_Inbound/logs/ST_INBOUND_CLIENT.log" required>';
+    
+    // Last Modified Check
+    var lastModified = document.createElement('div');
+    lastModified.className = 'field-group';
+    lastModified.innerHTML = '<label>Last Modified Check (minutes)</label>' +
+        '<input type="number" name="file_' + index + '_last_modified" value="15" min="1" required>';
+    
+    fieldsDiv.appendChild(filePath);
+    fieldsDiv.appendChild(lastModified);
+    
+    monitorDiv.appendChild(headerDiv);
+    monitorDiv.appendChild(fieldsDiv);
+    
+    container.appendChild(monitorDiv);
 };
 
 window.removeMonitor = function(monitorId) {
@@ -744,7 +890,6 @@ window.removeMonitor = function(monitorId) {
     }
 };
 
-// Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     new AppDConfigGenerator();
 });
