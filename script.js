@@ -39,6 +39,7 @@ class AppDConfigGenerator {
     }
 
     initiateGitHubLogin() {
+        // Skip OAuth completely for enterprise - use Personal Access Token
         this.showTokenModal();
     }
 
