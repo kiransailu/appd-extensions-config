@@ -122,11 +122,13 @@ class AppDConfigGenerator {
     }
 
     async handleOAuthCallback() {
-        // No longer needed - we're using Personal Access Tokens
+        // OAuth disabled for enterprise environment
         // Clear any OAuth parameters from URL if present
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('code')) {
+        if (urlParams.get('code') || urlParams.get('error')) {
             window.history.replaceState({}, document.title, window.location.pathname);
+            // Show token modal instead
+            this.showTokenModal();
         }
     }
 
