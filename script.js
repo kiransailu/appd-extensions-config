@@ -56,11 +56,13 @@ class AppDConfigGenerator {
                     <p><strong>To use this application, you need a GitHub Personal Access Token.</strong></p>
                     
                     <div class="steps">
-                        <h4>How to get your token:</h4>
+                        <h4>How to get your Enterprise GitHub token:</h4>
                         <ol>
-                            <li>Go to <a href="https://github.com/settings/tokens/new?scopes=repo&description=AppD Extensions Config Generator" target="_blank">GitHub Token Settings</a></li>
+                            <li>Go to your <strong>GitHub Enterprise Settings</strong> → <strong>Personal Access Tokens</strong></li>
+                            <li>Click <strong>"Generate new token (classic)"</strong></li>
+                            <li>Set <strong>Description</strong>: "AppD Extensions Config Generator"</li>
                             <li>Set <strong>Expiration</strong> to your preference (30 days recommended)</li>
-                            <li>Ensure <strong>"repo"</strong> scope is selected</li>
+                            <li>Select <strong>"repo"</strong> scope (Full control of private repositories)</li>
                             <li>Click <strong>"Generate token"</strong></li>
                             <li>Copy the token and paste it below</li>
                         </ol>
